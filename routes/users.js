@@ -1,9 +1,8 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
+var useController = require("../app/Controllers/UserController");
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+router.get("/lists", useController.getAllUsers2); //Get All Users
+router.post("/create", useController.createNewUser); //Create New User
 
 module.exports = router;
