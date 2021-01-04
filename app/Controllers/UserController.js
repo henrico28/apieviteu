@@ -5,25 +5,26 @@ const User = require("../Models/User");
 const getAllUsers = (req, res, next) => {
   db.query(User.getAllUsers(), (err, result) => {
     if (err) {
-      res.status(400).json({
+      return res.status(400).json({
         error: err.message,
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       data: result,
     });
   });
 };
 
 const getAllUsers2 = (req, res, next) => {
+  // console.log(req.user);
   User.getAllUsers2((err, result) => {
     if (err) {
-      res.status(400).json({
+      return res.status(400).json({
         error: err.message,
       });
     }
-    res.status(200).json({
+    return res.status(200).json({
       data: result,
     });
   });
@@ -41,33 +42,33 @@ const createNewUser = async (req, res, next) => {
     const user = new User(userData);
     User.getUserByEmail(userData.userEmail, (err, data) => {
       if (err) {
-        res.status(401).json({
+        return res.status(401).json({
           error: err.message,
         });
       }
 
       if (data.length >= 1) {
         if (data[0].userEmail === userData.userEmail) {
-          res.status(401).json({
+          return res.status(401).json({
             message: "Email already exists",
           });
         }
       } else {
         user.addUser((err, result) => {
           if (err) {
-            res.status(401).json({
+            return res.status(401).json({
               error: err.message,
             });
           }
 
           User.getUserById(result.insertId, (err, data) => {
             if (err) {
-              res.status(401).json({
+              return res.status(401).json({
                 error: err.message,
               });
             }
 
-            res.status(200).json({
+            return res.status(200).json({
               data: {
                 idUser: data[0].idUser,
                 userName: data[0].userName,
@@ -79,7 +80,7 @@ const createNewUser = async (req, res, next) => {
       }
     });
   } catch {
-    res.status(500);
+    return res.status(500);
   }
 };
 
