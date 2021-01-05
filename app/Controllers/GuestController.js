@@ -41,7 +41,7 @@ const createGuest = async (req, res, next) => {
       guestData.guestEmail,
       (err, data) => {
         if (err) {
-          return res.status(401).json({
+          return res.status(400).json({
             error: err.message,
           });
         }
@@ -62,7 +62,7 @@ const createGuest = async (req, res, next) => {
 
             Guest.getGuestById(result.insertId, (err, data) => {
               if (err) {
-                return res.status(401).json({
+                return res.status(400).json({
                   error: err.message,
                 });
               }
@@ -95,7 +95,7 @@ const deleteGuest = (req, res, next) => {
   const idGuest = req.body.idGuest;
   Guest.getGuestById(idGuest, (err, data) => {
     if (err) {
-      return res.status(401).json({
+      return res.status(400).json({
         error: err.message,
       });
     }
@@ -106,7 +106,7 @@ const deleteGuest = (req, res, next) => {
     }
     Guest.deleteGuestById(idGuest, (err) => {
       if (err) {
-        return res.status(409).json({
+        return res.status(400).json({
           error: err.message,
         });
       }
