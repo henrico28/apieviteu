@@ -2,6 +2,7 @@ const db = require("../../database");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../Models/User");
+const Guest = require("../Models/Guest");
 const Token = require("../Models/Token");
 
 const login = async (req, res, next) => {
@@ -28,6 +29,7 @@ const login = async (req, res, next) => {
       if (validate) {
         let tokenContent = {
           email: userData.userEmail,
+          role: 1,
         };
         const accessToken = generateAccessToken(tokenContent);
         const refreshToken = jwt.sign(
@@ -53,7 +55,7 @@ const login = async (req, res, next) => {
         });
       }
     } catch {
-      return res.status(500);
+      return res.sendStatus(500);
     }
   });
 };

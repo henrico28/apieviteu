@@ -49,7 +49,7 @@ const createNewUser = async (req, res, next) => {
 
       if (data.length >= 1) {
         if (data[0].userEmail === userData.userEmail) {
-          return res.status(401).json({
+          return res.status(409).json({
             message: "Email already exists",
           });
         }
@@ -68,7 +68,7 @@ const createNewUser = async (req, res, next) => {
               });
             }
 
-            return res.status(200).json({
+            return res.status(201).json({
               data: {
                 idUser: data[0].idUser,
                 userName: data[0].userName,
@@ -80,7 +80,7 @@ const createNewUser = async (req, res, next) => {
       }
     });
   } catch {
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 
