@@ -32,7 +32,7 @@ function query(sql, callback) {
     if (err) {
       return callback(err);
     }
-    callback(null, data);
+    return callback(null, data);
   });
 }
 
