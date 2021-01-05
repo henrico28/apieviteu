@@ -16,8 +16,8 @@ class Token {
     db.query(`SELECT * FROM eviteu_token WHERE token = '${token}'`, callback);
   }
 
-  static deleteTokenById(id, callback) {
-    db.query(`DELETE FROM eviteu_token WHERE idToken = ${id}`, callback);
+  static deleteTokenById(idToken, callback) {
+    db.query(`DELETE FROM eviteu_token WHERE idToken = ${idToken}`, callback);
   }
 }
 

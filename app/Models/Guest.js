@@ -19,30 +19,30 @@ class Guest {
     );
   }
 
-  updateGuest(id, callback) {
+  updateGuest(idGuest, callback) {
     db.query(
-      `UPDATE eviteu_guest SET guestName = '${this.guestName}', guestEmail = '${this.guestEmail}', guestPassword = '${this.guestPassword}', qty = ${this.qty}, status = ${this.status}, attend = ${this.attend} WHERE idGuest = ${id} `,
+      `UPDATE eviteu_guest SET guestName = '${this.guestName}', guestEmail = '${this.guestEmail}', guestPassword = '${this.guestPassword}', qty = ${this.qty}, status = ${this.status}, attend = ${this.attend} WHERE idGuest = ${idGuest} `,
       callback
     );
   }
 
-  updateGuestRSVP(id, callback) {
+  updateGuestRSVP(idGuest, callback) {
     db.query(
-      `UPDATE eviteu_guest SET qty = ${this.qty}, status = ${this.status} WHERE idGuest = ${id} `,
+      `UPDATE eviteu_guest SET qty = ${this.qty}, status = ${this.status} WHERE idGuest = ${idGuest} `,
       callback
     );
   }
 
-  updateGuestInvited(id, callback) {
+  updateGuestInvited(idGuest, callback) {
     db.query(
-      `UPDATE eviteu_guest SET invited = ${this.invited} WHERE idGuest = ${id} `,
+      `UPDATE eviteu_guest SET invited = ${this.invited} WHERE idGuest = ${idGuest} `,
       callback
     );
   }
 
-  updateGuestAttend(id, callback) {
+  updateGuestAttend(idGuest, callback) {
     db.query(
-      `UPDATE eviteu_guest SET attend = ${this.attend} WHERE idGuest = ${id} `,
+      `UPDATE eviteu_guest SET attend = ${this.attend} WHERE idGuest = ${idGuest} `,
       callback
     );
   }
@@ -51,8 +51,8 @@ class Guest {
     db.query(`SELECT * FROM eviteu_guest WHERE idEvent = ${idEvent}`, callback);
   }
 
-  static getGuestById(id, callback) {
-    db.query(`SELECT * FROM eviteu_guest WHERE idGuest = ${id}`, callback);
+  static getGuestById(idGuest, callback) {
+    db.query(`SELECT * FROM eviteu_guest WHERE idGuest = ${idGuest}`, callback);
   }
 
   static getGuestByIdEventEmail(idEvent, email, callback) {
@@ -62,12 +62,12 @@ class Guest {
     );
   }
 
-  static deleteGuestById(id, callback) {
-    db.query(`DELETE FROM eviteu_guest WHERE idGuest = ${id}`, callback);
+  static deleteGuestById(idGuest, callback) {
+    db.query(`DELETE FROM eviteu_guest WHERE idGuest = ${idGuest}`, callback);
   }
 
-  static deleteGuestByIdEvent(id, callback) {
-    db.query(`DELETE FROM eviteu_guest WHERE idEvent = ${id}`, callback);
+  static deleteGuestByIdEvent(idEvent, callback) {
+    db.query(`DELETE FROM eviteu_guest WHERE idEvent = ${idEvent}`, callback);
   }
 }
 

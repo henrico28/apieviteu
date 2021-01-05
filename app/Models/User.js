@@ -22,13 +22,13 @@ class User {
     db.query(`SELECT * FROM eviteu_user`, callback);
   }
 
-  static getUserById(id, callback) {
-    db.query(`SELECT * FROM eviteu_user WHERE idUser = ${id}`, callback);
+  static getUserById(idUser, callback) {
+    db.query(`SELECT * FROM eviteu_user WHERE idUser = ${idUser}`, callback);
   }
 
-  static getUserByEmail(email, callback) {
+  static getUserByEmail(userEmail, callback) {
     db.query(
-      `SELECT * FROM eviteu_user WHERE userEmail = '${email}'`,
+      `SELECT * FROM eviteu_user WHERE userEmail = '${userEmail}'`,
       callback
     );
   }
