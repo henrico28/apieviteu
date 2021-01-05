@@ -55,9 +55,9 @@ class Guest {
     db.query(`SELECT * FROM eviteu_guest WHERE idGuest = ${idGuest}`, callback);
   }
 
-  static getGuestByIdEventEmail(idEvent, email, callback) {
+  static getGuestByIdEventEmail(idEvent, guestEmail, callback) {
     db.query(
-      `SELECT * FROM eviteu_guest WHERE idEvent = ${idEvent} AND guestEmail = '${email}'`,
+      `SELECT * FROM eviteu_guest WHERE idEvent = ${idEvent} AND guestEmail = '${guestEmail}'`,
       callback
     );
   }
