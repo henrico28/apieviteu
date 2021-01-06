@@ -132,7 +132,6 @@ const updateGuest = async (req, res, next) => {
       qty: req.body.qty,
       status: req.body.status,
       attend: req.body.attend,
-      idEvent: req.body.idEvent,
     };
     const guest = new Guest(guestData);
     guest.updateGuest(idGuest, (err) => {
@@ -155,7 +154,6 @@ const updateGuest = async (req, res, next) => {
             qty: data[0].qty,
             status: data[0].status,
             attend: data[0].attend,
-            idEvent: data[0].idEvent,
           },
         });
       });
