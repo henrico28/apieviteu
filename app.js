@@ -10,6 +10,7 @@ var authRouter = require("./routes/auth");
 var usersRouter = require("./routes/users");
 var guestRouter = require("./routes/guest");
 var committeeRouter = require("./routes/committee");
+var inviteRouter = require("./routes/invite");
 var announcementRouter = require("./routes/announcement");
 
 var app = express();
@@ -31,6 +32,7 @@ app.use("/", authRouter);
 app.use("/users", usersRouter);
 app.use("/guest", guestRouter);
 app.use("/committee", committeeRouter);
+app.use("/invite", inviteRouter);
 app.use("/announcement", announcementRouter);
 
 // catch 404 and forward to error handler
