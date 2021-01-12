@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const User = require("../Models/User");
 const Guest = require("../Models/Guest");
 
@@ -251,6 +252,51 @@ const updateGuestAttend = (req, res, next) => {
   });
 };
 
+const inviteGuest = async (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  try {
+    const idGuest = req.body.idGuest;
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(req.body.userPassword, salt);
+    const userData = {
+      userPassword: hashedPassword,
+    };
+    const guestData = {
+      invited: 1,
+    };
+    const user = new User(userData);
+    const guest = new Guest(guestData);
+    Guest.getGuestByIdGuest(idGuest, (err, data) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      user.updateUserPassword(data[0].idUser, (err) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        guest.updateGuestInvited(idGuest, (err) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({
+            message: `${data[0].userName} have been invited`,
+          });
+        });
+      });
+    });
+  } catch {
+    return res.sendStatus(500);
+  }
+};
+
 module.exports = {
   getAllGuest,
   createGuest,
@@ -258,4 +304,5 @@ module.exports = {
   updateGuest,
   updateGuestRSVP,
   updateGuestAttend,
+  inviteGuest,
 };

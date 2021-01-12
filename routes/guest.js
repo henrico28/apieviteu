@@ -8,5 +8,6 @@ router.post("/create", auth.authenticateToken, useController.createGuest); //Cre
 router.delete("/delete", auth.authenticateToken, useController.deleteGuest); //Delete Guest
 router.put("/update", auth.authenticateToken, useController.updateGuest); //Update Guest
 router.put("/rsvp", auth.authenticateToken, useController.updateGuestRSVP); //Update Guest RSVP
-router.put("/attend", auth.authenticateToken, useController.updateGuestAttend); //Update Guest Attend
+router.put("/attend", auth.authenticateToken, useController.updateGuestAttend); //Update Guest Attend'
+router.put("/invite", auth.authenticateToken, useController.inviteGuest); //Invite Guest
 module.exports = router;
