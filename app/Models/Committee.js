@@ -35,9 +35,9 @@ class Committee {
     );
   }
 
-  static getCommitteeByIdEventEmail(idEvent, committeeEmail, callback) {
+  static getCommitteeByIdEventEmail(idEvent, userEmail, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee, active, idEvent FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE idEvent = ${idEvent} AND committeeEmail = '${committeeEmail}'`,
+      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee, active, idEvent FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE idEvent = ${idEvent} AND userEmail = '${userEmail}'`,
       callback
     );
   }
