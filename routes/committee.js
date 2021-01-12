@@ -7,4 +7,9 @@ router.post("/lists", auth.authenticateToken, useController.getAllCommittee); //
 router.post("/create", auth.authenticateToken, useController.createCommittee); //Create Committee
 router.delete("/delete", auth.authenticateToken, useController.deleteCommittee); //Delete Committee
 router.put("/update", auth.authenticateToken, useController.updateCommittee); //Update Committee
+router.put(
+  "/activate",
+  auth.authenticateToken,
+  useController.activateCommittee
+); //Activate Committee
 module.exports = router;

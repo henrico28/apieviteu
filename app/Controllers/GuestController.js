@@ -104,7 +104,7 @@ const deleteGuest = (req, res, next) => {
         error: "Invalid Guest ID",
       });
     }
-    Guest.deleteGuestById(idGuest, (err) => {
+    Guest.deleteGuestByIdGuest(idGuest, (err) => {
       if (err) {
         return res.status(400).json({
           error: err.message,

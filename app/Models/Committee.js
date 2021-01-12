@@ -2,48 +2,47 @@ const db = require("../../database");
 
 class Committee {
   constructor(data) {
-    this.committeeName = data.committeeName;
-    this.committeeEmail = data.committeeEmail;
-    this.committeePassword = data.committeePassword;
+    this.active = data.active;
+    this.idUser = data.idUser;
     this.idEvent = data.idEvent;
   }
 
   addCommittee(callback) {
     db.query(
-      `INSERT INTO eviteu_committee(committeeName, committeeEmail, committeePassword, idEvent) VALUES('${this.committeeName}', '${this.committeeEmail}', '${this.committeePassword}', ${this.idEvent})`,
+      `INSERT INTO eviteu_committee(active, idUser, idEvent) VALUES(${this.active}, ${this.idUser}, ${this.idEvent})`,
       callback
     );
   }
 
-  updateCommittee(idCommittee, callback) {
+  updateCommitteeActive(idCommittee, callback) {
     db.query(
-      `UPDATE eviteu_committee SET committeeName = '${this.committeeName}', committeeEmail = '${this.committeeEmail}', committeePassword = '${this.committeePassword}', idEvent = ${this.idEvent} WHERE idCommittee = ${idCommittee}`,
+      `UPDATE eviteu_committee SET active = ${this.active} WHERE idCommittee = ${idCommittee}`,
       callback
     );
   }
 
   static getAllCommitteeByIdEvent(idEvent, callback) {
     db.query(
-      `SELECT * FROM eviteu_committee WHERE idEvent = ${idEvent}`,
+      `SELECT eviteu_user.idUser, userName, userEmail, idCommittee, active, idEvent FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE idEvent = ${idEvent}`,
       callback
     );
   }
 
-  static getCommitteeById(idCommittee, callback) {
+  static getCommitteeByIdCommittee(idCommittee, callback) {
     db.query(
-      `SELECT * FROM eviteu_committee WHERE idCommittee = ${idCommittee}`,
+      `SELECT eviteu_user.idUser, userName, userEmail, idCommittee, active, idEvent FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE idCommittee = ${idCommittee}`,
       callback
     );
   }
 
   static getCommitteeByIdEventEmail(idEvent, committeeEmail, callback) {
     db.query(
-      `SELECT * FROM eviteu_committee WHERE idEvent = ${idEvent} AND committeeEmail = '${committeeEmail}'`,
+      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee, active, idEvent FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE idEvent = ${idEvent} AND committeeEmail = '${committeeEmail}'`,
       callback
     );
   }
 
-  static deleteCommitteeById(idCommittee, callback) {
+  static deleteCommitteeByIdCommittee(idCommittee, callback) {
     db.query(
       `DELETE FROM eviteu_committee WHERE idCommittee = ${idCommittee}`,
       callback

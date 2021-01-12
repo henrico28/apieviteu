@@ -66,7 +66,7 @@ class Guest {
     );
   }
 
-  static deleteGuestById(idGuest, callback) {
+  static deleteGuestByIdGuest(idGuest, callback) {
     db.query(`DELETE FROM eviteu_guest WHERE idGuest = ${idGuest}`, callback);
   }
 

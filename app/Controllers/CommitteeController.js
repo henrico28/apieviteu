@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const User = require("../Models/User");
 const Committee = require("../Models/Committee");
 
 const getAllCommittee = (req, res, next) => {
@@ -22,62 +23,63 @@ const createCommittee = async (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
-  try {
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(req.body.committeePassword, salt);
-    const committeeData = {
-      committeeName: req.body.committeeName,
-      committeeEmail: req.body.committeeEmail,
-      committeePassword: hashedPassword,
-      idEvent: req.body.idEvent,
-    };
-    const committee = new Committee(committeeData);
-    Committee.getCommitteeByIdEventEmail(
-      committeeData.idEvent,
-      committeeData.committeeEmail,
-      (err, data) => {
+  const userData = {
+    userName: req.body.userName,
+    userEmail: req.body.userEmail,
+  };
+  const user = new User(userData);
+  User.getUserByEmail(userData.userEmail, (err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    if (data.length >= 1) {
+      if (data[0].userEmail === userData.userEmail) {
+        return res.status(409).json({
+          message: "Email already exists",
+        });
+      }
+    } else {
+      user.addUserNoPassword((err, result) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
           });
         }
-
-        if (data.length >= 1) {
-          if (data[0].committeeEmail === committeeData.committeeEmail) {
-            return res.status(409).json({
-              message: "Email already exists",
+        const committeeData = {
+          active: 0,
+          idUser: result.insertId,
+          idEvent: req.body.idEvent,
+        };
+        const committee = new Committee(committeeData);
+        committee.addCommittee((err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
             });
           }
-        } else {
-          committee.addCommittee((err, result) => {
+          Committee.getCommitteeByIdCommittee(result.insertId, (err, data) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
               });
             }
-
-            Committee.getCommitteeById(result.insertId, (err, data) => {
-              if (err) {
-                return res.status(400).json({
-                  error: err.message,
-                });
-              }
-              return res.status(201).json({
-                data: {
-                  idCommittee: data[0].idCommittee,
-                  committeeName: data[0].committeeName,
-                  committeeEmail: data[0].committeeEmail,
-                  idEvent: data[0].idEvent,
-                },
-              });
+            return res.status(201).json({
+              data: {
+                idUser: data[0].idUser,
+                userName: data[0].userName,
+                userEmail: data[0].userEmail,
+                idCommittee: data[0].idCommittee,
+                active: data[0].active,
+                idEvent: data[0].idEvent,
+              },
             });
           });
-        }
-      }
-    );
-  } catch {
-    return res.sendStatus(500);
-  }
+        });
+      });
+    }
+  });
 };
 
 const deleteCommittee = (req, res, next) => {
@@ -85,7 +87,7 @@ const deleteCommittee = (req, res, next) => {
     return res.sendStatus(401);
   }
   const idCommittee = req.body.idCommittee;
-  Committee.getCommitteeById(idCommittee, (err, data) => {
+  Committee.getCommitteeByIdCommittee(idCommittee, (err, data) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -96,14 +98,21 @@ const deleteCommittee = (req, res, next) => {
         error: "Invalid Committee ID",
       });
     }
-    Committee.deleteCommitteeById(idCommittee, (err) => {
+    Committee.deleteCommitteeByIdCommittee(idCommittee, (err) => {
       if (err) {
         return res.status(400).json({
           error: err.message,
         });
       }
-      return res.status(200).json({
-        message: `Committee ${data[0].committeName} Successfully Deleted`,
+      User.deleteUserByIdUser(data[0].idUser, (err) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        return res.status(200).json({
+          message: `Committee ${data[0].userName} Successfully Deleted`,
+        });
       });
     });
   });
@@ -113,41 +122,96 @@ const updateCommittee = async (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
-  try {
-    const idCommittee = req.body.idCommittee;
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(req.body.committeePassword, salt);
-    const committeeData = {
-      committeeName: req.body.committeeName,
-      committeeEmail: req.body.committeeEmail,
-      committeePassword: hashedPassword,
-      idEvent: req.body.idEvent,
-    };
-    const committee = new Committee(committeeData);
-    committee.updateCommittee(idCommittee, (err) => {
-      if (err) {
-        return res.status(400).json({
-          error: err.message,
+  const idUser = req.body.idUser;
+  const idCommittee = req.body.idCommittee;
+  const userData = {
+    userName: req.body.userName,
+    userEmail: req.body.userEmail,
+  };
+  const user = new User(userData);
+  User.getUserByEmail(userData.userEmail, (err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    if (data.length >= 1) {
+      if (data[0].userEmail === userData.userEmail) {
+        return res.status(409).json({
+          message: "Email already exists",
         });
       }
-      Committee.getCommitteeById(idCommittee, (err, data) => {
+    } else {
+      user.updateUserNameEmail(idUser, (err) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
           });
         }
-        return res.status(200).json({
-          data: {
-            idCommittee: data[0].idCommittee,
-            committeeName: data[0].committeeName,
-            committeeEmail: data[0].committeeEmail,
-            idEvent: data[0].idEvent,
-          },
+        Committee.getCommitteeByIdCommittee(idCommittee, (err, data) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({
+            data: {
+              idUser: data[0].idUser,
+              userName: data[0].userName,
+              userEmail: data[0].userEmail,
+              idCommittee: data[0].idCommittee,
+              active: data[0].active,
+              idEvent: data[0].idEvent,
+            },
+          });
+        });
+      });
+    }
+  });
+};
+
+const activateCommittee = async (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  try {
+    const idCommittee = req.body.idCommittee;
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(req.body.userPassword, salt);
+    const userData = {
+      userPassword: hashedPassword,
+    };
+    const committeeData = {
+      active: 1,
+    };
+    const user = new User(userData);
+    const committee = new Committee(committeeData);
+    Committee.getCommitteeByIdCommittee(idCommittee, (err, data) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      user.updateUserPassword(data[0].idUser, (err) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        committee.updateCommitteeActive(idCommittee, (err) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({
+            message: `${data[0].userName} have been activated`,
+          });
         });
       });
     });
   } catch {
-    return res.status(500);
+    return res.sendStatus(500);
   }
 };
 
@@ -156,4 +220,5 @@ module.exports = {
   createCommittee,
   deleteCommittee,
   updateCommittee,
+  activateCommittee,
 };
