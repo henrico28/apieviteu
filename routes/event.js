@@ -1,0 +1,16 @@
+var express = require("express");
+var router = express.Router();
+var useController = require("../app/Controllers/EventController");
+var auth = require("../app/Controllers/AuthController");
+
+router.get("/lists", auth.authenticateToken, useController.getAllEvent); //Get All Events
+router.get("/detail", auth.authenticateToken, useController.getEventForUser); //Get Event For User
+router.get(
+  "/information",
+  auth.authenticateToken,
+  useController.getEventForGuest
+); //Get Event For Guest
+router.delete("/delete", auth.authenticateToken, useController.deleteEvent); //Delete Event
+router.post("/create", auth.authenticateToken, useController.createEvent); //Create Event
+router.put("/update", auth.authenticateToken, useController.updateEvent); //Update Event
+module.exports = router;
