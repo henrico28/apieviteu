@@ -15,14 +15,21 @@ class Host {
 
   static getAllHost(callback) {
     db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idHost, phoneNumber, token FROM eviteu_host INNER JOIN eviteu_user ON eviteu_host.idUser = eviteu_user.idUser`,
+      `SELECT eviteu_user.idUser, userName, userEmail, idHost, phoneNumber, token FROM eviteu_host INNER JOIN eviteu_user ON eviteu_host.idUser = eviteu_user.idUser`,
       callback
     );
   }
 
-  static getHostById(idUser, callback) {
+  static getHostByIdHost(idHost, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idHost, phoneNumber, token FROM eviteu_host INNER JOIN eviteu_user ON eviteu_host.idUser = eviteu_user.idUser WHERE idHost = ${idUser}`,
+      `SELECT eviteu_user.idUser, userName, userEmail, idHost, phoneNumber, token FROM eviteu_host INNER JOIN eviteu_user ON eviteu_host.idUser = eviteu_user.idUser WHERE idHost = ${idHost}`,
+      callback
+    );
+  }
+
+  static getHostByUserEmail(userEmail, callback) {
+    db.query(
+      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idHost, phoneNumber, token FROM eviteu_host INNER JOIN eviteu_user ON eviteu_host.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}'`,
       callback
     );
   }
