@@ -190,6 +190,9 @@ const updateGuest = async (req, res, next) => {
 };
 
 const updateGuestRSVP = (req, res, next) => {
+  if (req.user.role != 3) {
+    return res.sendStatus(401);
+  }
   const idGuest = req.body.idGuest;
   const guestData = {
     qty: req.body.qty,
@@ -219,6 +222,9 @@ const updateGuestRSVP = (req, res, next) => {
 };
 
 const updateGuestAttend = (req, res, next) => {
+  if (req.user.role != 2) {
+    return res.sendStatus(401);
+  }
   const idGuest = req.body.idGuest;
   const guestData = {
     attend: req.body.attend,
