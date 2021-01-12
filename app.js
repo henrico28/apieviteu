@@ -8,9 +8,10 @@ var cors = require("cors");
 var indexRouter = require("./routes/index");
 var authRouter = require("./routes/auth");
 var usersRouter = require("./routes/users");
+var hostRouter = require("./routes/host");
 var guestRouter = require("./routes/guest");
 var committeeRouter = require("./routes/committee");
-var inviteRouter = require("./routes/invite");
+var eventRouter = require("./routes/event");
 var announcementRouter = require("./routes/announcement");
 
 var app = express();
@@ -30,9 +31,10 @@ app.use(cors());
 app.use("/", indexRouter);
 app.use("/", authRouter);
 app.use("/users", usersRouter);
+app.use("/host", hostRouter);
 app.use("/guest", guestRouter);
 app.use("/committee", committeeRouter);
-app.use("/invite", inviteRouter);
+app.use("/event", eventRouter);
 app.use("/announcement", announcementRouter);
 
 // catch 404 and forward to error handler

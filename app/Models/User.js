@@ -5,11 +5,19 @@ class User {
     this.userName = data.userName;
     this.userEmail = data.userEmail;
     this.userPassword = data.userPassword;
+    this.token = data.token;
   }
 
   addUser(callback) {
     db.query(
       `INSERT INTO eviteu_user(userName, userEmail, userPassword) VALUES('${this.userName}', '${this.userEmail}', '${this.userPassword}')`,
+      callback
+    );
+  }
+
+  updateUserToken(idUser, callback) {
+    db.query(
+      `UPDATE eviteu_user SET token = ${this.token} WHERE idUser = ${idUser}`,
       callback
     );
   }
