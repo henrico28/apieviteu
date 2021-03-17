@@ -25,7 +25,7 @@ const createHost = async (req, res, next) => {
       userPassword: hashedPassword,
     };
     const user = new User(userData);
-    User.getUserByEmail(userData.userEmail, (err, data) => {
+    Host.getHostByUserEmail(userData.userEmail, (err, data) => {
       if (err) {
         return res.status(400).json({
           error: err.message,
@@ -34,7 +34,7 @@ const createHost = async (req, res, next) => {
       if (data.length >= 1) {
         if (data[0].userEmail === userData.userEmail) {
           return res.status(409).json({
-            message: "Email already exists",
+            message: "Email already exists.",
           });
         }
       } else {
