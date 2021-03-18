@@ -18,7 +18,7 @@ const login = async (req, res, next) => {
     }
     if (data.length === 0) {
       return res.status(401).json({
-        error: "Invalid Email",
+        error: "No account with that email found.",
       });
     }
     try {
@@ -54,7 +54,7 @@ const login = async (req, res, next) => {
         });
       } else {
         return res.status(401).json({
-          error: "Invalid Email or Password",
+          error: "Invalid Email or Password.",
         });
       }
     } catch {

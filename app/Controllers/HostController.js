@@ -34,7 +34,7 @@ const createHost = async (req, res, next) => {
       if (data.length >= 1) {
         if (data[0].userEmail === userData.userEmail) {
           return res.status(409).json({
-            message: "Email already exists.",
+            error: "Email already exists.",
           });
         }
       } else {
