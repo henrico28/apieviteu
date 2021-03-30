@@ -191,7 +191,9 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) {
-      return res.sendStatus(403);
+      return res.status(401).json({
+        error: err.message,
+      });
     }
     req.user = user;
     next();
@@ -230,7 +232,12 @@ const refreshToken = (req, res, next) => {
           if (user.email !== email) {
             return res.sendStatus(403);
           }
-          const accessToken = generateAccessToken(user);
+          let tokenContent = {
+            idUser: user.idUser,
+            email: user.email,
+            role: user.role,
+          };
+          const accessToken = generateAccessToken(tokenContent);
           return res.status(200).json({
             accessToken: accessToken,
           });

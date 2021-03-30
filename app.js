@@ -13,6 +13,7 @@ var guestRouter = require("./routes/guest");
 var committeeRouter = require("./routes/committee");
 var eventRouter = require("./routes/event");
 var announcementRouter = require("./routes/announcement");
+var typeRouter = require("./routes/type");
 
 var app = express();
 
@@ -36,6 +37,7 @@ app.use("/guest", guestRouter);
 app.use("/committee", committeeRouter);
 app.use("/event", eventRouter);
 app.use("/announcement", announcementRouter);
+app.use("/type", typeRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

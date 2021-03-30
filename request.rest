@@ -1,0 +1,163 @@
+### HOST
+GET http://localhost:8000/host/lists
+
+###
+POST http://localhost:8000/host/create 
+Content-Type: application/json
+
+{
+  "userName" : "Henrico Leodra",
+  "userEmail" : "leodra@gmail.com",
+  "userPassword" : "123456",
+  "phoneNumber" : "081221008366"
+}
+
+### LOGIN
+POST http://localhost:8000/login
+Content-Type: application/json
+
+{
+  "userEmail": "henricoleodra@gmail.com",
+  "userPassword": "123456"
+}
+
+###
+GET http://localhost:8000/event/lists
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb2xlb2RyYUBnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTcxMTk5NTAsImV4cCI6MTYxNzExOTk4MH0.HLPqWY7md_7-RuwuSZBrU11T3myKWVTQBVhHsANtBd0
+
+### 
+POST http://localhost:8000/loginEvent
+Content-Type: application/json
+
+{
+  "userEmail": "committee@gmail.com",
+  "userPassword": "1",
+  "idEvent": "1"
+}
+
+###
+POST http://localhost:8000/token
+Content-Type: application/json
+
+{
+  "userEmail": "henricoleodra@gmail.com",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb2xlb2RyYUBnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTcxMTk2MjB9.enrqsSZ7_2SJ_DLXIGbX_V0QreVGAa1nepC3luwUFuY"
+}
+
+### 
+DELETE http://localhost:8000/logout
+Content-Type: application/json
+
+{
+  "userEmail": "henrico@gmail.com",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NzY4ODV9.3u3aWs0TMrhjcquajbaGMdA7orrcH5kNDY0J5GpREXY"
+}
+
+### GUEST
+POST http://localhost:8000/guest/create 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NjI2OTIsImV4cCI6MTYxMDQ2NDQ5Mn0.NqSfSXrCHzCz6AmraleNP8LZqJOB9aagh353sj1ENLY
+Content-Type: application/json
+
+{
+  "userName" : "Henrico Leodra",
+  "userEmail" : "yolo@gmail.com",
+  "idEvent": "1"
+}
+
+###
+POST http://localhost:8000/guest/lists
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NjI2OTIsImV4cCI6MTYxMDQ2NDQ5Mn0.NqSfSXrCHzCz6AmraleNP8LZqJOB9aagh353sj1ENLY
+Content-Type: application/json
+
+{
+  "idEvent": "1"
+}
+
+###
+DELETE http://localhost:8000/guest/delete
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NjI2OTIsImV4cCI6MTYxMDQ2NDQ5Mn0.NqSfSXrCHzCz6AmraleNP8LZqJOB9aagh353sj1ENLY
+Content-Type: application/json
+
+{
+  "idGuest": "3"
+}
+
+###
+PUT http://localhost:8000/guest/update
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NjM4NzMsImV4cCI6MTYxMDQ2NTY3M30.yrF37nfu-z6N-hqTUYo2CIGyn8-rBNVXLWMsW3hckYk
+Content-Type: application/json
+
+{
+  "idUser": "3",
+  "idGuest": "2",
+  "userName": "John Doe",
+  "userEmail": "aaa@gmail.com",
+  "qty": "1",
+  "status": "1",
+  "attend": "1"
+}
+
+###
+PUT http://localhost:8000/guest/invite
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NjYxNTUsImV4cCI6MTYxMDQ2Nzk1NX0.Fdyzq1mDHfnNRVdipsYhZ7u4UMEMevEJUJ8LgjYXFi4
+Content-Type: application/json
+
+{
+  "idGuest": "1",
+  "userPassword": "123456"
+}
+
+### COMMITTEE
+POST http://localhost:8000/committee/create 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NzI3NTgsImV4cCI6MTYxMDQ3NDU1OH0.xh4j2I0kyYRiOn8kxgUxY5NkuR-KCso_n4bFPSubtlo
+Content-Type: application/json
+
+{
+  "userName" : "Henrico Leodra",
+  "userEmail" : "committee@gmail.com",
+  "idEvent": "1"
+}
+
+###
+POST http://localhost:8000/committee/lists
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NzI3NTgsImV4cCI6MTYxMDQ3NDU1OH0.xh4j2I0kyYRiOn8kxgUxY5NkuR-KCso_n4bFPSubtlo
+Content-Type: application/json
+
+{
+  "idEvent": "1"
+}
+
+###
+PUT http://localhost:8000/committee/activate
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NzI3NTgsImV4cCI6MTYxMDQ3NDU1OH0.xh4j2I0kyYRiOn8kxgUxY5NkuR-KCso_n4bFPSubtlo
+Content-Type: application/json
+
+{
+  "idCommittee": "1",
+  "userPassword": "123456"
+}
+
+### EVENT
+POST  http://localhost:8000/event/create
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NzcyMTEsImV4cCI6MTYxMDQ3OTAxMX0.Z6biMMnDK5eH0GY4aFlVJYdKu7WF-F6sYLk5tORbrGw
+Content-Type: application/json
+
+{
+  "eventTitle": "Event Title",
+  "eventSubTitle": "Event Subtitle",
+  "eventDescription": "Event Description",
+  "eventHighlight": "Event Highlight",
+  "date": "2019-08-10",
+  "time": "19:30:00",
+  "location": "Location X",
+  "eventPrimary": "#FFFFFF",
+  "eventSecondary": "#FFFFFF",
+  "eventAccent": "#FFFFFF",
+  "max": "3",
+  "idUser": "2",
+  "idType": "1"
+}
+
+###
+GET http://localhost:8000/event/lists
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NzcyMTEsImV4cCI6MTYxMDQ3OTAxMX0.Z6biMMnDK5eH0GY4aFlVJYdKu7WF-F6sYLk5tORbrGw
