@@ -62,7 +62,7 @@ const createEvent = (req, res, next) => {
     eventTitle: req.body.eventTitle,
     eventSubTitle: req.body.eventSubTitle,
     eventDescription: req.body.eventDescription,
-    eventHighlight: req.body.eventHighlight,
+    eventHighlight: req.file.filename,
     date: req.body.date,
     time: req.body.time,
     location: req.body.location,
@@ -70,7 +70,7 @@ const createEvent = (req, res, next) => {
     eventSecondary: req.body.eventSecondary,
     eventAccent: req.body.eventAccent,
     max: req.body.max,
-    idUser: req.body.idUser,
+    idUser: req.user.idUser,
     idType: req.body.idType,
   };
   const event = new Event(eventData);
@@ -87,21 +87,7 @@ const createEvent = (req, res, next) => {
         });
       }
       return res.status(201).json({
-        data: {
-          eventTitle: data[0].eventTitle,
-          eventSubTitle: data[0].eventSubTitle,
-          eventDescription: data[0].eventDescription,
-          eventHighlight: data[0].eventHighlight,
-          date: data[0].date,
-          time: data[0].time,
-          location: data[0].location,
-          eventPrimary: data[0].eventPrimary,
-          eventSecondary: data[0].eventSecondary,
-          eventAccent: data[0].eventAccent,
-          max: data[0].max,
-          idUser: data[0].idUser,
-          idType: data[0].idType,
-        },
+        message: `Event ${data[0].eventTitle} has been created.`,
       });
     });
   });
