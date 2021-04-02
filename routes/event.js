@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+var Event = require("../app/Models/Event");
 var useController = require("../app/Controllers/EventController");
 var auth = require("../app/Controllers/AuthController");
 var path = require("path");
@@ -14,16 +15,27 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const idUser = req.user.idUser;
-    const tmp = idUser + "_" + req.body.eventTitle.replace(" ", "");
-    if (fs.existsSync(`./public/images/${tmp}.png`)) {
-      fs.unlinkSync(`./public/images/${tmp}.png`);
-    } else if (fs.existsSync(`./public/images/${tmp}.jpeg`)) {
-      fs.unlinkSync(`./public/images/${tmp}.jpeg`);
-    } else if (fs.existsSync(`./public/images/${tmp}.jpg`)) {
-      fs.unlinkSync(`./public/images/${tmp}.jpg`);
-    }
-    const fileName = tmp + path.extname(file.originalname);
-    cb(null, fileName);
+    Event.getMaxIdEvent((err, result) => {
+      if (err) {
+        console.log("Err", err.message);
+      } else {
+        let idEvent = 1;
+        if (result[0].maxIdEvent) {
+          idEvent = result[0].maxIdEvent + 1;
+        }
+        const tmp =
+          idUser + "_" + idEvent + "_" + req.body.eventTitle.replace(" ", "");
+        if (fs.existsSync(`./public/images/${tmp}.png`)) {
+          fs.unlinkSync(`./public/images/${tmp}.png`);
+        } else if (fs.existsSync(`./public/images/${tmp}.jpeg`)) {
+          fs.unlinkSync(`./public/images/${tmp}.jpeg`);
+        } else if (fs.existsSync(`./public/images/${tmp}.jpg`)) {
+          fs.unlinkSync(`./public/images/${tmp}.jpg`);
+        }
+        const fileName = tmp + path.extname(file.originalname);
+        cb(null, fileName);
+      }
+    });
   },
 });
 

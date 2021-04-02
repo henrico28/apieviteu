@@ -31,6 +31,10 @@ class Event {
     );
   }
 
+  static getMaxIdEvent(callback) {
+    db.query(`SELECT MAX(idEvent) as maxIdEvent FROM eviteu_event`, callback);
+  }
+
   static getAllEventByIdUser(idUser, callback) {
     db.query(`SELECT * FROM eviteu_event WHERE idUser = ${idUser}`, callback);
   }
