@@ -9,6 +9,7 @@ class Event {
     this.date = data.date;
     this.time = data.time;
     this.location = data.location;
+    this.coordinates = data.coordinates;
     this.eventPrimary = data.eventPrimary;
     this.eventSecondary = data.eventSecondary;
     this.eventAccent = data.eventAccent;
@@ -19,14 +20,14 @@ class Event {
 
   addEvent(callback) {
     db.query(
-      `INSERT INTO eviteu_event(eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, eventPrimary, eventSecondary,  eventAccent, max, idUser, idType) VALUES('${this.eventTitle}', '${this.eventSubTitle}', '${this.eventDescription}', '${this.eventHighlight}', '${this.date}', '${this.time}', '${this.location}', '${this.eventPrimary}', '${this.eventSecondary}', '${this.eventAccent}', ${this.max}, ${this.idUser}, ${this.idType})`,
+      `INSERT INTO eviteu_event(eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary,  eventAccent, max, idUser, idType) VALUES('${this.eventTitle}', '${this.eventSubTitle}', '${this.eventDescription}', '${this.eventHighlight}', '${this.date}', '${this.time}', '${this.location}', '${this.coordinates}', '${this.eventPrimary}', '${this.eventSecondary}', '${this.eventAccent}', ${this.max}, ${this.idUser}, ${this.idType})`,
       callback
     );
   }
 
   updateEvent(idEvent, callback) {
     db.query(
-      `UPDATE eviteu_event SET eventTitle = '${this.eventTitle}', eventSubTitle = '${this.eventSubTitle}', eventDescription = '${this.eventDescription}', eventHighlight = '${this.eventHighlight}', date = '${this.date}', time = '${this.time}', location = '${this.location}', eventPrimary = '${this.eventPrimary}', eventSecondary = '${this.eventSecondary}', eventAccent = '${this.eventAccent}', max = ${this.max}, idType = ${this.idType} WHERE idevent = ${idEvent}`,
+      `UPDATE eviteu_event SET eventTitle = '${this.eventTitle}', eventSubTitle = '${this.eventSubTitle}', eventDescription = '${this.eventDescription}', eventHighlight = '${this.eventHighlight}', date = '${this.date}', time = '${this.time}', location = '${this.location}', coordinates = '${this.coordinates}', eventPrimary = '${this.eventPrimary}', eventSecondary = '${this.eventSecondary}', eventAccent = '${this.eventAccent}', max = ${this.max}, idType = ${this.idType} WHERE idevent = ${idEvent}`,
       callback
     );
   }
