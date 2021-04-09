@@ -15,7 +15,7 @@ const getAllEvent = (req, res, next) => {
       });
     }
     return res.status(200).json({
-      data: result,
+      result,
     });
   });
 };
@@ -32,7 +32,7 @@ const getEventForUser = (req, res, next) => {
       });
     }
     return res.status(200).json({
-      data: result,
+      result,
     });
   });
 };
@@ -49,7 +49,7 @@ const getEventForGuest = (req, res, next) => {
       });
     }
     return res.status(200).json({
-      data: result,
+      result,
     });
   });
 };
