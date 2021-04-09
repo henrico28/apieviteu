@@ -14,13 +14,14 @@ class Event {
     this.eventSecondary = data.eventSecondary;
     this.eventAccent = data.eventAccent;
     this.max = data.max;
-    this.idUser = data.idUser;
+    this.idHost = data.idHost;
     this.idType = data.idType;
   }
 
   addEvent(callback) {
     db.query(
-      `INSERT INTO eviteu_event(eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary,  eventAccent, max, idUser, idType) VALUES('${this.eventTitle}', '${this.eventSubTitle}', '${this.eventDescription}', '${this.eventHighlight}', '${this.date}', '${this.time}', '${this.location}', '${this.coordinates}', '${this.eventPrimary}', '${this.eventSecondary}', '${this.eventAccent}', ${this.max}, ${this.idUser}, ${this.idType})`,
+      `INSERT INTO eviteu_event(eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary,  eventAccent, max, idHost
+        , idType) VALUES('${this.eventTitle}', '${this.eventSubTitle}', '${this.eventDescription}', '${this.eventHighlight}', '${this.date}', '${this.time}', '${this.location}', '${this.coordinates}', '${this.eventPrimary}', '${this.eventSecondary}', '${this.eventAccent}', ${this.max}, ${this.idHost}, ${this.idType})`,
       callback
     );
   }
@@ -36,8 +37,11 @@ class Event {
     db.query(`SELECT MAX(idEvent) as maxIdEvent FROM eviteu_event`, callback);
   }
 
-  static getAllEventByIdUser(idUser, callback) {
-    db.query(`SELECT * FROM eviteu_event WHERE idUser = ${idUser}`, callback);
+  static getAllEventByIdHost(idHost, callback) {
+    db.query(
+      `SELECT eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary, eventAccent, max, idHost, idType, MAX(idGuest) AS totalGuestInvited,SUM(status) AS totalGuestRsvp,SUM(qty) AS totalGuestBrought, SUM(attend) AS totalGuestAttended FROM eviteu_guest INNER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent GROUP BY idEvent WHERE idHost = ${idHost}`,
+      callback
+    );
   }
 
   static getEventById(idEvent, callback) {

@@ -31,6 +31,7 @@ const login = async (req, res, next) => {
           idUser: data[0].idUser,
           email: hostData.userEmail,
           role: 1,
+          idRole: data[0].idHost,
         };
         const accessToken = generateAccessToken(tokenContent);
         const refreshToken = jwt.sign(

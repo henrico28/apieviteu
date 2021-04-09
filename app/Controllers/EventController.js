@@ -4,11 +4,11 @@ const getAllEvent = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
-  const idUser = req.user.idUser;
-  if (idUser == undefined) {
+  const idHost = req.user.idRole;
+  if (idHost == undefined) {
     return res.sendStatus(401);
   }
-  Event.getAllEventByIdUser(idUser, (err, result) => {
+  Event.getAllEventByIdHost(idHost, (err, result) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -71,7 +71,7 @@ const createEvent = (req, res, next) => {
     eventSecondary: req.body.eventSecondary,
     eventAccent: req.body.eventAccent,
     max: req.body.max,
-    idUser: req.user.idUser,
+    idHost: req.user.idRole,
     idType: req.body.idType,
   };
   const event = new Event(eventData);
