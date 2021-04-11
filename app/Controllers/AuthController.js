@@ -237,6 +237,8 @@ const refreshToken = (req, res, next) => {
             idUser: user.idUser,
             email: user.email,
             role: user.role,
+            idRole: user.idRole,
+            idEvent: user.idEvent,
           };
           const accessToken = generateAccessToken(tokenContent);
           return res.status(200).json({
@@ -287,7 +289,7 @@ const logout = (req, res, next) => {
 
 const generateAccessToken = (data) => {
   return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "30m",
+    expiresIn: "1h",
   });
 };
 
