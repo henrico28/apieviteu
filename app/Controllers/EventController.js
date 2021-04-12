@@ -1,4 +1,5 @@
 const Event = require("../Models/Event");
+var fs = require("fs");
 
 const getAllEvent = (req, res, next) => {
   if (req.user.role != 1) {
@@ -99,9 +100,28 @@ const updateEvent = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
-  let fileName = req.body.eventHighlightName;
+  let rawHighlightName = req.body.eventHighlightName;
   if (req.file) {
     fileName = req.file.filename;
+  } else {
+    let index = 0;
+    if (rawHighlightName.indexOf(".png") !== -1) {
+      index = rawHighlightName.indexOf(".png");
+    } else if (rawHighlightName.indexOf(".jpeg") !== -1) {
+      index = rawHighlightName.indexOf(".jpeg");
+    } else {
+      index = rawHighlightName.indexOf(".jpg");
+    }
+    const identifer = rawHighlightName.split("_");
+    fileName =
+      identifer[0] +
+      "_" +
+      identifer[1] +
+      "_" +
+      req.body.eventTitle.replace(" ", "") +
+      rawHighlightName.substring(index, rawHighlightName.length);
+    const dir = "./public/images/";
+    fs.renameSync(dir + rawHighlightName, dir + fileName);
   }
   const idEvent = req.body.idEvent;
   const eventData = {
