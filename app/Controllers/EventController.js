@@ -20,20 +20,19 @@ const getAllEvent = (req, res, next) => {
   });
 };
 
-const getEventForUser = (req, res, next) => {
+const getEventForHost = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
-  const idEvent = req.body.idEvent;
-  Event.getEventById(idEvent, (err, result) => {
+  const idEvent = req.params.id;
+  const idHost = req.user.idRole;
+  Event.getEventByIdEventIdHost(idEvent, idHost, (err, result) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
       });
     }
-    return res.status(200).json({
-      result,
-    });
+    return res.status(200).json({ result });
   });
 };
 
@@ -100,12 +99,16 @@ const updateEvent = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
+  let fileName = req.body.eventHighlightName;
+  if (req.file) {
+    fileName = req.file.filename;
+  }
   const idEvent = req.body.idEvent;
   const eventData = {
     eventTitle: req.body.eventTitle,
     eventSubTitle: req.body.eventSubTitle,
     eventDescription: req.body.eventDescription,
-    eventHighlight: req.body.eventHighlight,
+    eventHighlight: fileName,
     date: req.body.date,
     time: req.body.time,
     location: req.body.location,
@@ -130,7 +133,8 @@ const updateEvent = (req, res, next) => {
         });
       }
       return res.status(200).json({
-        data: {
+        message: `Event ${data[0].eventTitle} has been updated.`,
+        result: {
           idEvent: data[0].idEvent,
           eventTitle: data[0].eventTitle,
           eventSubTitle: data[0].eventSubTitle,
@@ -153,7 +157,7 @@ const updateEvent = (req, res, next) => {
 
 module.exports = {
   getAllEvent,
-  getEventForUser,
+  getEventForHost,
   getEventForGuest,
   createEvent,
   deleteEvent,

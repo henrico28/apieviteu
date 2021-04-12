@@ -44,6 +44,13 @@ class Event {
     );
   }
 
+  static getEventByIdEventIdHost(idEvent, idHost, callback) {
+    db.query(
+      `SELECT * FROM eviteu_event WHERE idEvent = ${idEvent} AND idHost = ${idHost}`,
+      callback
+    );
+  }
+
   static getEventById(idEvent, callback) {
     db.query(`SELECT * FROM eviteu_event WHERE idEvent = ${idEvent}`, callback);
   }
