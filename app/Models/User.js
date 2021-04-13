@@ -72,6 +72,13 @@ class User {
   static deleteUserByIdUser(idUser, callback) {
     db.query(`DELETE FROM eviteu_user WHERE idUser = ${idUser}`, callback);
   }
+
+  static deleteUserGuestByIdEvent(idEvent, callback) {
+    db.query(
+      `DELETE FROM eviteu_user WHERE idUser IN (SELECT idUser FROM eviteu_guest WHERE idEvent = ${idEvent})`,
+      callback
+    );
+  }
 }
 
 module.exports = User;

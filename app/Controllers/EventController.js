@@ -1,4 +1,5 @@
 const Event = require("../Models/Event");
+const User = require("../Models/User");
 var fs = require("fs");
 
 const getAllEvent = (req, res, next) => {
@@ -94,7 +95,46 @@ const createEvent = (req, res, next) => {
   });
 };
 
-const deleteEvent = (req, res, next) => {};
+const deleteEvent = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idEvent = req.body.idEvent;
+  const idHost = req.user.idRole;
+  Event.getEventById(idEvent, (err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    fs.unlinkSync(`./public/images/${data[0].eventHighlight}`);
+    User.deleteUserGuestByIdEvent(idEvent, (err) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      Event.deleteEventById(idEvent, (err) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        Event.getAllEventByIdHost(idHost, (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({
+            message: `Event ${data[0].eventTitle} has been deleted.`,
+            result,
+          });
+        });
+      });
+    });
+  });
+};
 
 const updateEvent = (req, res, next) => {
   if (req.user.role != 1) {
