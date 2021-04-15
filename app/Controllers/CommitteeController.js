@@ -6,17 +6,52 @@ const getAllCommittee = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
-  const idEvent = req.body.idEvent;
-  Committee.getAllCommitteeByIdEvent(idEvent, (err, result) => {
+  const idHost = req.user.idRole;
+  Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
       });
     }
     return res.status(200).json({
-      data: result,
+      result,
     });
   });
+};
+
+const getAllCommitteeEvent = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idEvent = req.params.id;
+  Committee.getCommitteeByIdEvent(idEvent, (err, result) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    return res.status(200).json({ result });
+  });
+};
+
+const getCommittee = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idCommittee = req.params.id;
+  const idHost = req.user.idRole;
+  Committee.getCommitteeByIdCommitteeIdHost(
+    idCommittee,
+    idHost,
+    (err, result) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      return res.status(200).json({ result });
+    }
+  );
 };
 
 const createCommittee = async (req, res, next) => {
@@ -28,7 +63,7 @@ const createCommittee = async (req, res, next) => {
     userEmail: req.body.userEmail,
   };
   const user = new User(userData);
-  User.getUserByEmail(userData.userEmail, (err, data) => {
+  Committee.getCommitteeByUserEmail(userData.userEmail, (err, data) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -37,7 +72,7 @@ const createCommittee = async (req, res, next) => {
     if (data.length >= 1) {
       if (data[0].userEmail === userData.userEmail) {
         return res.status(409).json({
-          message: "Email already exists",
+          error: "Email already exists.",
         });
       }
     } else {
@@ -50,7 +85,7 @@ const createCommittee = async (req, res, next) => {
         const committeeData = {
           active: 0,
           idUser: result.insertId,
-          idEvent: req.body.idEvent,
+          idHost: req.user.idRole,
         };
         const committee = new Committee(committeeData);
         committee.addCommittee((err, result) => {
@@ -66,14 +101,7 @@ const createCommittee = async (req, res, next) => {
               });
             }
             return res.status(201).json({
-              data: {
-                idUser: data[0].idUser,
-                userName: data[0].userName,
-                userEmail: data[0].userEmail,
-                idCommittee: data[0].idCommittee,
-                active: data[0].active,
-                idEvent: data[0].idEvent,
-              },
+              message: `Committee ${data[0].userName} has been added.`,
             });
           });
         });
@@ -87,6 +115,7 @@ const deleteCommittee = (req, res, next) => {
     return res.sendStatus(401);
   }
   const idCommittee = req.body.idCommittee;
+  const idHost = req.user.idRole;
   Committee.getCommitteeByIdCommittee(idCommittee, (err, data) => {
     if (err) {
       return res.status(400).json({
@@ -110,8 +139,16 @@ const deleteCommittee = (req, res, next) => {
             error: err.message,
           });
         }
-        return res.status(200).json({
-          message: `Committee ${data[0].userName} Successfully Deleted`,
+        Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({
+            message: `Committee ${data[0].userName} has been deleted.`,
+            result,
+          });
         });
       });
     });
@@ -129,7 +166,7 @@ const updateCommittee = async (req, res, next) => {
     userEmail: req.body.userEmail,
   };
   const user = new User(userData);
-  User.getUserByEmail(userData.userEmail, (err, data) => {
+  Committee.getCommitteeByUserEmail(userData.userEmail, (err, data) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -138,7 +175,7 @@ const updateCommittee = async (req, res, next) => {
     if (data.length >= 1) {
       if (data[0].userEmail === userData.userEmail) {
         return res.status(409).json({
-          message: "Email already exists",
+          error: "Email already exists.",
         });
       }
     } else {
@@ -155,13 +192,14 @@ const updateCommittee = async (req, res, next) => {
             });
           }
           return res.status(200).json({
-            data: {
+            message: `Committee ${data[0].userName} has been updated.`,
+            result: {
               idUser: data[0].idUser,
               userName: data[0].userName,
               userEmail: data[0].userEmail,
               idCommittee: data[0].idCommittee,
               active: data[0].active,
-              idEvent: data[0].idEvent,
+              idHost: data[0].idHost,
             },
           });
         });
@@ -217,6 +255,8 @@ const activateCommittee = async (req, res, next) => {
 
 module.exports = {
   getAllCommittee,
+  getAllCommitteeEvent,
+  getCommittee,
   createCommittee,
   deleteCommittee,
   updateCommittee,
