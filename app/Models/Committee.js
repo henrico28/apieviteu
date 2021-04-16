@@ -63,6 +63,13 @@ class Committee {
     );
   }
 
+  static getCommitteeByUserEmailNotId(userEmail, idCommittee, callback) {
+    db.query(
+      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee, active, idHost, token FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}' AND idCommittee != ${idCommittee}`,
+      callback
+    );
+  }
+
   static deleteCommitteeByIdCommittee(idCommittee, callback) {
     db.query(
       `DELETE FROM eviteu_committee WHERE idCommittee = ${idCommittee}`,

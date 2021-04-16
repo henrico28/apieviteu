@@ -164,46 +164,61 @@ const updateCommittee = async (req, res, next) => {
     userEmail: req.body.userEmail,
   };
   const user = new User(userData);
-  Committee.getCommitteeByUserEmail(userData.userEmail, (err, data) => {
-    if (err) {
-      return res.status(400).json({
-        error: err.message,
-      });
-    }
-    if (data.length >= 1) {
-      if (data[0].userEmail === userData.userEmail) {
-        return res.status(409).json({
-          error: "Email already exists.",
+  Committee.getCommitteeByUserEmailNotId(
+    userData.userEmail,
+    idCommittee,
+    (err, data) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
         });
       }
-    } else {
-      user.updateUserNameEmail(idUser, (err) => {
-        if (err) {
-          return res.status(400).json({
-            error: err.message,
+      if (data.length >= 1) {
+        if (data[0].userEmail === userData.userEmail) {
+          return res.status(409).json({
+            error: "Email already exists.",
           });
         }
-        Committee.getCommitteeByIdCommittee(idCommittee, (err, data) => {
+      } else {
+        user.updateUserNameEmail(idUser, (err) => {
           if (err) {
             return res.status(400).json({
               error: err.message,
             });
           }
-          return res.status(200).json({
-            message: `Committee ${data[0].userName} has been updated.`,
-            result: {
-              idUser: data[0].idUser,
-              userName: data[0].userName,
-              userEmail: data[0].userEmail,
-              idCommittee: data[0].idCommittee,
-              active: data[0].active,
-              idHost: data[0].idHost,
-            },
+          const committeData = {
+            active: 0,
+          };
+          const committe = new Committee(committeData);
+          committe.updateCommitteeActive(idCommittee, (err, result) => {
+            if (err) {
+              return res.status(400).json({
+                error: err.message,
+              });
+            }
+            Committee.getCommitteeById(idCommittee, (err, data) => {
+              if (err) {
+                return res.status(400).json({
+                  error: err.message,
+                });
+              }
+              return res.status(200).json({
+                message: `Committee ${data[0].userName} has been updated.`,
+                result: {
+                  idUser: data[0].idUser,
+                  userName: data[0].userName,
+                  userEmail: data[0].userEmail,
+                  idCommittee: data[0].idCommittee,
+                  active: data[0].active,
+                  idHost: data[0].idHost,
+                },
+              });
+            });
           });
         });
-      });
+      }
     }
-  });
+  );
 };
 
 const activateCommittee = async (req, res, next) => {
