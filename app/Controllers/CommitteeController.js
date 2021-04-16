@@ -94,11 +94,9 @@ const createCommittee = async (req, res, next) => {
               error: err.message,
             });
           }
-          Committee.getCommitteeByIdCommittee(result.insertId, (err, data) => {
+          Committee.getCommitteeById(result.insertId, (err, data) => {
             if (err) {
-              return res.status(400).json({
-                error: err.message,
-              });
+              return res.status(400).json({ error: err.message });
             }
             return res.status(201).json({
               message: `Committee ${data[0].userName} has been added.`,

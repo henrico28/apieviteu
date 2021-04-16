@@ -28,6 +28,13 @@ class Committee {
     );
   }
 
+  static getCommitteeById(idCommittee, callback) {
+    db.query(
+      `SELECT eviteu_user.idUser, userName, userEmail, idCommittee, active, idHost FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE idCommittee = ${idCommittee}`,
+      callback
+    );
+  }
+
   static getCommitteeByIdCommitteeIdHost(idCommittee, idHost, callback) {
     db.query(
       `SELECT eviteu_user.idUser, userName, userEmail, idCommittee, active, idHost FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE idCommittee = ${idCommittee} AND idHost = ${idHost}`,
@@ -51,7 +58,7 @@ class Committee {
 
   static getCommitteeByUserEmail(userEmail, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee, active, idHost, token FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WEHRE userEmail = '${userEmail}'`,
+      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee, active, idHost, token FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}'`,
       callback
     );
   }
