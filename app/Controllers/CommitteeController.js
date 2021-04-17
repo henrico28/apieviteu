@@ -112,41 +112,30 @@ const deleteCommittee = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
+  const idUser = req.body.idUser;
   const idCommittee = req.body.idCommittee;
   const idHost = req.user.idRole;
-  Committee.getCommitteeByIdCommittee(idCommittee, (err, data) => {
+  Committee.getCommitteeById(idCommittee, (err, data) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
       });
     }
-    if (data.length === 0) {
-      return res.status(409).json({
-        error: "Invalid Committee ID",
-      });
-    }
-    Committee.deleteCommitteeByIdCommittee(idCommittee, (err) => {
+    User.deleteUserByIdUser(idUser, (err) => {
       if (err) {
         return res.status(400).json({
           error: err.message,
         });
       }
-      User.deleteUserByIdUser(data[0].idUser, (err) => {
+      Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
           });
         }
-        Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
-          if (err) {
-            return res.status(400).json({
-              error: err.message,
-            });
-          }
-          return res.status(200).json({
-            message: `Committee ${data[0].userName} has been deleted.`,
-            result,
-          });
+        return res.status(200).json({
+          message: `Committee ${data[0].userName} has been deleted.`,
+          result,
         });
       });
     });
