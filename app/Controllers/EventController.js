@@ -2,26 +2,6 @@ const Event = require("../Models/Event");
 const User = require("../Models/User");
 var fs = require("fs");
 
-const getAllEvent = (req, res, next) => {
-  if (req.user.role != 1) {
-    return res.sendStatus(401);
-  }
-  const idHost = req.user.idRole;
-  if (idHost == undefined) {
-    return res.sendStatus(401);
-  }
-  Event.getAllEventByIdHost(idHost, (err, result) => {
-    if (err) {
-      return res.status(400).json({
-        error: err.message,
-      });
-    }
-    return res.status(200).json({
-      result,
-    });
-  });
-};
-
 const getEventForHost = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
@@ -52,6 +32,54 @@ const getEventForGuest = (req, res, next) => {
     return res.status(200).json({
       result,
     });
+  });
+};
+
+const getAllEvent = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idHost = req.user.idRole;
+  if (idHost == undefined) {
+    return res.sendStatus(401);
+  }
+  Event.getAllEventByIdHost(idHost, (err, result) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    return res.status(200).json({
+      result,
+    });
+  });
+};
+
+const getAllAssignedCommittee = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idEvent = req.params.id;
+  Event.getEventById(idEvent, (err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    if (data.length == 0) {
+      return res.status(400).json({
+        error: "No event found",
+      });
+    } else {
+      Event.getAllCommitteeAssignedByIdEvent(idEvent, (err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        return res.status(200).json({ result });
+      });
+    }
   });
 };
 
@@ -215,11 +243,74 @@ const updateEvent = (req, res, next) => {
   });
 };
 
+const assignCommittee = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idEvent = req.body.idEvent;
+  const listOfIdCommittee = req.body.listOfCommittee;
+  Event.deleteCommitteeAssignedByIdEvent(idEvent, (err) => {
+    if (err) {
+      return res(400).json({
+        error: err.message,
+      });
+    }
+    if (listOfIdCommittee.length != 0) {
+      Event.addAssignCommittee(idEvent, listOfIdCommittee, (err) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        Event.getEventById(idEvent, (err, data) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          Event.getAllCommitteeAssignedByIdEvent(idEvent, (err, result) => {
+            if (err) {
+              return res.status(400).json({
+                error: err.message,
+              });
+            }
+            return res.status(200).json({
+              message: `Event ${data[0].eventTitle} has been assigned committee.`,
+              result,
+            });
+          });
+        });
+      });
+    } else {
+      Event.getEventById(idEvent, (err, data) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        Event.getAllCommitteeAssignedByIdEvent(idEvent, (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({
+            message: `Event ${data[0].eventTitle} has been assigned committee.`,
+            result,
+          });
+        });
+      });
+    }
+  });
+};
+
 module.exports = {
-  getAllEvent,
   getEventForHost,
   getEventForGuest,
+  getAllEvent,
+  getAllAssignedCommittee,
   createEvent,
   deleteEvent,
   updateEvent,
+  assignCommittee,
 };

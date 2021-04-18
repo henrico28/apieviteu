@@ -74,28 +74,35 @@ const uploads = multer({
   limits: { fileSize: 5000000 },
 });
 
-router.get("/lists", auth.authenticateToken, useController.getAllEvent); //Get All Events
 router.get(
   `/detail/:id`,
   auth.authenticateToken,
   useController.getEventForHost
-); //Get Event For Host
+); // Get Event For Host
 router.get(
   "/information",
   auth.authenticateToken,
   useController.getEventForGuest
-); //Get Event For Guest
-router.delete("/delete", auth.authenticateToken, useController.deleteEvent); //Delete Event
+); // Get Event For Guest
+router.get("/lists", auth.authenticateToken, useController.getAllEvent); // Get All Events
+router.get(
+  "/assigned/:id",
+  auth.authenticateToken,
+  useController.getAllAssignedCommittee
+); // Get All Assigned Committee
+router.delete("/delete", auth.authenticateToken, useController.deleteEvent); // Delete Event
 router.post(
   "/create",
   auth.authenticateToken,
   uploads.single("eventHighlight"),
   useController.createEvent
-); //Create Event
+); // Create Event
+router.post("/assign", auth.authenticateToken, useController.assignCommittee); // Assign Committee
 router.put(
   "/update",
   auth.authenticateToken,
   uploads.single("eventHighlight"),
   useController.updateEvent
-); //Update Event
+); // Update Event
+
 module.exports = router;

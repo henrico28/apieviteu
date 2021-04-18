@@ -37,11 +37,8 @@ class Event {
     db.query(`SELECT MAX(idEvent) as maxIdEvent FROM eviteu_event`, callback);
   }
 
-  static getAllEventByIdHost(idHost, callback) {
-    db.query(
-      `SELECT eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary, eventAccent, max, idHost, idType, MAX(idGuest) AS totalGuestInvited,SUM(status) AS totalGuestRsvp,SUM(qty) AS totalGuestBrought, SUM(attend) AS totalGuestAttended FROM eviteu_guest RIGHT OUTER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent WHERE idHost = ${idHost} GROUP BY idEvent`,
-      callback
-    );
+  static getEventById(idEvent, callback) {
+    db.query(`SELECT * FROM eviteu_event WHERE idEvent = ${idEvent}`, callback);
   }
 
   static getEventByIdEventIdHost(idEvent, idHost, callback) {
@@ -51,12 +48,40 @@ class Event {
     );
   }
 
-  static getEventById(idEvent, callback) {
-    db.query(`SELECT * FROM eviteu_event WHERE idEvent = ${idEvent}`, callback);
+  static getAllEventByIdHost(idHost, callback) {
+    db.query(
+      `SELECT eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary, eventAccent, max, idHost, idType, MAX(idGuest) AS totalGuestInvited,SUM(status) AS totalGuestRsvp,SUM(qty) AS totalGuestBrought, SUM(attend) AS totalGuestAttended FROM eviteu_guest RIGHT OUTER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent WHERE idHost = ${idHost} GROUP BY idEvent`,
+      callback
+    );
+  }
+
+  static getAllCommitteeAssignedByIdEvent(idEvent, callback) {
+    db.query(
+      `SELECT eviteu_committee.idCommittee, userName, CASE WHEN assignedCommittee.idEvent IS NULL THEN 0 ELSE 1 END AS status FROM (SELECT * FROM eviteu_manage WHERE idEvent = ${idEvent}) AS assignedCommittee RIGHT OUTER JOIN eviteu_committee ON assignedCommittee.idCommittee = eviteu_committee.idCommittee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser`,
+      callback
+    );
+  }
+
+  static addAssignCommittee(idEvent, listOfIdCommittee, callback) {
+    let query = "INSERT INTO eviteu_manage(idEvent, idCommittee) VALUES";
+    let flag = true;
+    listOfIdCommittee.forEach((idCommittee) => {
+      if (flag) {
+        query += `(${idEvent}, ${idCommittee})`;
+        flag = false;
+      } else {
+        query += `,(${idEvent}, ${idCommittee})`;
+      }
+    });
+    db.query(query, callback);
   }
 
   static deleteEventById(idEvent, callback) {
     db.query(`DELETE FROM eviteu_event WHERE idEvent = ${idEvent}`, callback);
+  }
+
+  static deleteCommitteeAssignedByIdEvent(idEvent, callback) {
+    db.query(`DELETE FROM eviteu_manage WHERE idEvent = ${idEvent}`, callback);
   }
 }
 

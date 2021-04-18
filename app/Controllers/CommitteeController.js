@@ -2,6 +2,26 @@ const bcrypt = require("bcrypt");
 const User = require("../Models/User");
 const Committee = require("../Models/Committee");
 
+const getCommittee = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idCommittee = req.params.id;
+  const idHost = req.user.idRole;
+  Committee.getCommitteeByIdCommitteeIdHost(
+    idCommittee,
+    idHost,
+    (err, result) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      return res.status(200).json({ result });
+    }
+  );
+};
+
 const getAllCommittee = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
@@ -32,26 +52,6 @@ const getAllCommitteeEvent = (req, res, next) => {
     }
     return res.status(200).json({ result });
   });
-};
-
-const getCommittee = (req, res, next) => {
-  if (req.user.role != 1) {
-    return res.sendStatus(401);
-  }
-  const idCommittee = req.params.id;
-  const idHost = req.user.idRole;
-  Committee.getCommitteeByIdCommitteeIdHost(
-    idCommittee,
-    idHost,
-    (err, result) => {
-      if (err) {
-        return res.status(400).json({
-          error: err.message,
-        });
-      }
-      return res.status(200).json({ result });
-    }
-  );
 };
 
 const createCommittee = async (req, res, next) => {
@@ -256,9 +256,9 @@ const activateCommittee = async (req, res, next) => {
 };
 
 module.exports = {
+  getCommittee,
   getAllCommittee,
   getAllCommitteeEvent,
-  getCommittee,
   createCommittee,
   deleteCommittee,
   updateCommittee,
