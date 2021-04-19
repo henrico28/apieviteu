@@ -71,7 +71,7 @@ const getAllAssignedCommittee = (req, res, next) => {
         error: "No event found",
       });
     } else {
-      Event.getAllCommitteeAssignedByIdEvent(idEvent, (err, result) => {
+      Event.getAllCommitteeAssignedById(idEvent, (err, result) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
@@ -249,7 +249,7 @@ const assignCommittee = (req, res, next) => {
   }
   const idEvent = req.body.idEvent;
   const listOfIdCommittee = req.body.listOfCommittee;
-  Event.deleteCommitteeAssignedByIdEvent(idEvent, (err) => {
+  Event.deleteCommitteeAssignedById(idEvent, (err) => {
     if (err) {
       return res(400).json({
         error: err.message,
@@ -268,14 +268,14 @@ const assignCommittee = (req, res, next) => {
               error: err.message,
             });
           }
-          Event.getAllCommitteeAssignedByIdEvent(idEvent, (err, result) => {
+          Event.getAllCommitteeAssignedById(idEvent, (err, result) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
               });
             }
             return res.status(200).json({
-              message: `Event ${data[0].eventTitle} has been assigned committee.`,
+              message: `Event ${data[0].eventTitle} has been assigned committees.`,
               result,
             });
           });
@@ -288,7 +288,7 @@ const assignCommittee = (req, res, next) => {
             error: err.message,
           });
         }
-        Event.getAllCommitteeAssignedByIdEvent(idEvent, (err, result) => {
+        Event.getAllCommitteeAssignedById(idEvent, (err, result) => {
           if (err) {
             return res.status(400).json({
               error: err.message,

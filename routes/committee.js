@@ -10,7 +10,13 @@ router.get(
   auth.authenticateToken,
   useController.getAllCommitteeEvent
 ); // Get All Committee Of Event
+router.get(
+  "/assigned/:id",
+  auth.authenticateToken,
+  useController.getAllAssignedEvent
+); // Get All Assigned Event
 router.post("/create", auth.authenticateToken, useController.createCommittee); // Create Committee
+router.post("/assign", auth.authenticateToken, useController.assignEvent); // Assign Event
 router.delete("/delete", auth.authenticateToken, useController.deleteCommittee); // Delete Committee
 router.put("/update", auth.authenticateToken, useController.updateCommittee); // Update Committee
 router.put(

@@ -54,6 +54,34 @@ const getAllCommitteeEvent = (req, res, next) => {
   });
 };
 
+const getAllAssignedEvent = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idCommittee = req.params.id;
+  Committee.getCommitteeById(idCommittee, (err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    if (data.length == 0) {
+      return res.status(400).json({
+        error: "No committee found",
+      });
+    } else {
+      Committee.getAllAssignedEventById(idCommittee, (err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        return res.status(200).json({ result });
+      });
+    }
+  });
+};
+
 const createCommittee = async (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
@@ -210,6 +238,48 @@ const updateCommittee = async (req, res, next) => {
   );
 };
 
+const assignEvent = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idCommittee = req.body.idCommittee;
+  const listOfIdEvent = req.body.listOfEvent;
+  Committee.deleteEventAssignedById(idCommittee, (err) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    if (listOfIdEvent.length != 0) {
+      Committee.addAssignEvent(idCommittee, listOfIdEvent, (err) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        Committee.getCommitteeById(idCommittee, (err, data) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          Committee.getAllAssignedEventById(idCommittee, (err, result) => {
+            if (err) {
+              return res.status(400).json({
+                error: err.message,
+              });
+            }
+            return res.status(200).json({
+              message: `Committee ${data[0].userName} has been assigned events.`,
+              result,
+            });
+          });
+        });
+      });
+    }
+  });
+};
+
 const activateCommittee = async (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
@@ -259,8 +329,10 @@ module.exports = {
   getCommittee,
   getAllCommittee,
   getAllCommitteeEvent,
+  getAllAssignedEvent,
   createCommittee,
   deleteCommittee,
   updateCommittee,
+  assignEvent,
   activateCommittee,
 };
