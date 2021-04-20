@@ -1,20 +1,45 @@
 const Announcement = require("../Models/Announcement");
 
+const getAnnouncement = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idAnnouncement = req.params.id;
+  const idHost = req.user.idRole;
+  Announcement.getAnnouncementByIdAnnouncementIdHost(
+    idAnnouncement,
+    idHost,
+    (err, result) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      return res.status(200).json({ result });
+    }
+  );
+};
+
 const getAllAnnouncement = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
-  const idEvent = req.body.idEvent;
-  Announcement.getAllAnnouncementByIdEvent(idEvent, (err, result) => {
-    if (err) {
-      return res.status(400).json({
-        message: err.message,
+  const idEvent = req.params.id;
+  const idHost = req.user.idRole;
+  Announcement.getAllAnnouncementByIdHostIdEvent(
+    idHost,
+    idEvent,
+    (err, result) => {
+      if (err) {
+        return res.status(400).json({
+          message: err.message,
+        });
+      }
+      return res.status(200).json({
+        result,
       });
     }
-    return res.status(200).json({
-      data: result,
-    });
-  });
+  );
 };
 
 const getAllPublishedAnnouncement = (req, res, next) => {
@@ -29,7 +54,7 @@ const getAllPublishedAnnouncement = (req, res, next) => {
       });
     }
     return res.status(200).json({
-      data: result,
+      result,
     });
   });
 };
@@ -58,13 +83,7 @@ const createAnnouncement = (req, res, next) => {
         });
       }
       return res.status(201).json({
-        data: {
-          idAnnouncement: data[0].idAnnouncement,
-          announcementTitle: data[0].announcementTitle,
-          announcementDescription: data[0].announcementDescription,
-          announcementStatus: data[0].announcementStatus,
-          idEvent: data[0].idEvent,
-        },
+        message: `Announcement ${data[0].announcementTitle} has been added.`,
       });
     });
   });
@@ -74,16 +93,12 @@ const deleteAnnouncement = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
+  const idEvent = req.body.idEvent;
   const idAnnouncement = req.body.idAnnouncement;
   Announcement.getAnnouncementById(idAnnouncement, (err, data) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
-      });
-    }
-    if (data.length === 0) {
-      return res.status(409).json({
-        error: "Invalid Announcement ID",
       });
     }
     Announcement.deleteAnnouncementById(idAnnouncement, (err) => {
@@ -92,8 +107,16 @@ const deleteAnnouncement = (req, res, next) => {
           error: err.message,
         });
       }
-      return res.status(200).json({
-        message: `Announcement ${data[0].announcementTitle} Successfully Deleted`,
+      Announcement.getAllAnnouncementByIdEvent(idEvent, (err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        return res.status(200).json({
+          message: `Announcement ${data[0].announcementTitle} has been deleted.`,
+          result,
+        });
       });
     });
   });
@@ -110,6 +133,7 @@ const updateAnnoucement = (req, res, next) => {
     announcementStatus: req.body.announcementStatus,
   };
   const announcement = new Announcement(announcementData);
+
   announcement.updateAnnoucement(idAnnouncement, (err) => {
     if (err) {
       return res.status(400).json({
@@ -123,10 +147,14 @@ const updateAnnoucement = (req, res, next) => {
         });
       }
       return res.status(200).json({
-        idAnnouncement: data[0].idAnnouncement,
-        announcementTitle: data[0].announcementTitle,
-        announcementDescription: data[0].announcementDescription,
-        announcementStatus: data[0].announcementStatus,
+        message: `Announcement ${data[0].announcementTitle} has been updated.`,
+        result: {
+          idAnnouncement: data[0].idAnnouncement,
+          announcementTitle: data[0].announcementTitle,
+          announcementDescription: data[0].announcementDescription,
+          announcementStatus: data[0].announcementStatus,
+          idEvent: data[0].idEvent,
+        },
       });
     });
   });
@@ -136,32 +164,41 @@ const updateAnnoucementStatus = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
+  const idEvent = req.body.idEvent;
   const idAnnouncement = req.body.idAnnouncement;
   const announcementData = {
     announcementStatus: req.body.announcementStatus,
   };
   const announcement = new Announcement(announcementData);
-  announcement.updateAnnoucementStatus(idAnnouncement, (err) => {
+  Announcement.getAnnouncementById(idAnnouncement, (err, data) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
       });
     }
-    Announcement.getAnnouncementById(idAnnouncement, (err, data) => {
+    announcement.updateAnnoucementStatus(idAnnouncement, (err) => {
       if (err) {
         return res.status(400).json({
           error: err.message,
         });
       }
-      return res.status(200).json({
-        idAnnouncement: data[0].idAnnouncement,
-        announcementStatus: data[0].announcementStatus,
+      Announcement.getAllAnnouncementByIdEvent(idEvent, (err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        return res.status(200).json({
+          message: `Announcement ${data[0].announcementTitle} status has been change.`,
+          result,
+        });
       });
     });
   });
 };
 
 module.exports = {
+  getAnnouncement,
   getAllAnnouncement,
   getAllPublishedAnnouncement,
   createAnnouncement,

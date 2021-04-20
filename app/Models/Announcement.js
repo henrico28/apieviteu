@@ -29,6 +29,24 @@ class Announcement {
     );
   }
 
+  static getAnnouncementById(idAnnouncement, callback) {
+    db.query(
+      `SELECT * FROM eviteu_announcement WHERE idAnnouncement = ${idAnnouncement}`,
+      callback
+    );
+  }
+
+  static getAnnouncementByIdAnnouncementIdHost(
+    idAnnouncement,
+    idHost,
+    callback
+  ) {
+    db.query(
+      `SELECT eviteu_announcement.idAnnouncement, announcementTitle, announcementDescription, announcementStatus, eviteu_announcement.idEvent FROM eviteu_host INNER JOIN eviteu_event ON eviteu_host.idHost = eviteu_event.idHost INNER JOIN eviteu_announcement ON eviteu_event.idEvent = eviteu_announcement.idEvent WHERE eviteu_host.idHost = ${idHost} AND eviteu_announcement.idAnnouncement = ${idAnnouncement}`,
+      callback
+    );
+  }
+
   static getAllAnnouncementByIdEvent(idEvent, callback) {
     db.query(
       `SELECT * FROM eviteu_announcement WHERE idEvent = ${idEvent}`,
@@ -36,16 +54,16 @@ class Announcement {
     );
   }
 
-  static getAllPublishedAnnoucementByIdEvent(idEvent, callback) {
+  static getAllAnnouncementByIdHostIdEvent(idHost, idEvent, callback) {
     db.query(
-      `SELECT * FROM eviteu_announcement WHERE idEvent = ${idEvent} AND announcementStatus = 1`,
+      `SELECT eviteu_announcement.idAnnouncement, announcementTitle, announcementDescription, announcementStatus, eviteu_announcement.idEvent FROM eviteu_host INNER JOIN eviteu_event ON eviteu_host.idHost = eviteu_event.idHost INNER JOIN eviteu_announcement ON eviteu_event.idEvent = eviteu_announcement.idEvent WHERE eviteu_host.idHost = ${idHost} AND eviteu_event.idEvent = ${idEvent}`,
       callback
     );
   }
 
-  static getAnnouncementById(idAnnouncement, callback) {
+  static getAllPublishedAnnoucementByIdEvent(idEvent, callback) {
     db.query(
-      `SELECT * FROM eviteu_announcement WHERE idAnnouncement = ${idAnnouncement}`,
+      `SELECT * FROM eviteu_announcement WHERE idEvent = ${idEvent} AND announcementStatus = 1`,
       callback
     );
   }
