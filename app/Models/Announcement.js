@@ -42,7 +42,7 @@ class Announcement {
     callback
   ) {
     db.query(
-      `SELECT eviteu_announcement.idAnnouncement, announcementTitle, announcementDescription, announcementStatus, eviteu_announcement.idEvent FROM eviteu_host INNER JOIN eviteu_event ON eviteu_host.idHost = eviteu_event.idHost INNER JOIN eviteu_announcement ON eviteu_event.idEvent = eviteu_announcement.idEvent WHERE eviteu_host.idHost = ${idHost} AND eviteu_announcement.idAnnouncement = ${idAnnouncement}`,
+      `SELECT eviteu_announcement.idAnnouncement, announcementTitle, announcementDescription, announcementStatus, eviteu_announcement.idEvent FROM eviteu_event INNER JOIN eviteu_announcement ON eviteu_event.idEvent = eviteu_announcement.idEvent WHERE eviteu_event.idHost = ${idHost} AND eviteu_announcement.idAnnouncement = ${idAnnouncement}`,
       callback
     );
   }
@@ -56,7 +56,7 @@ class Announcement {
 
   static getAllAnnouncementByIdHostIdEvent(idHost, idEvent, callback) {
     db.query(
-      `SELECT eviteu_announcement.idAnnouncement, announcementTitle, announcementDescription, announcementStatus, eviteu_announcement.idEvent FROM eviteu_host INNER JOIN eviteu_event ON eviteu_host.idHost = eviteu_event.idHost INNER JOIN eviteu_announcement ON eviteu_event.idEvent = eviteu_announcement.idEvent WHERE eviteu_host.idHost = ${idHost} AND eviteu_event.idEvent = ${idEvent}`,
+      `SELECT eviteu_announcement.idAnnouncement, announcementTitle, announcementDescription, announcementStatus, eviteu_announcement.idEvent FROM eviteu_event INNER JOIN eviteu_announcement ON eviteu_event.idEvent = eviteu_announcement.idEvent WHERE eviteu_event.idHost = ${idHost} AND eviteu_event.idEvent = ${idEvent}`,
       callback
     );
   }
