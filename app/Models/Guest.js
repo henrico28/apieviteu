@@ -45,16 +45,30 @@ class Guest {
     );
   }
 
-  static getAllGuestByIdEvent(idEvent, callback) {
+  static getGuestById(idGuest, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idEvent = ${idEvent}`,
+      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idGuest = ${idGuest}`,
       callback
     );
   }
 
-  static getGuestByIdGuest(idGuest, callback) {
+  static getGuestByIdGuestIdHost(idGuest, idHost, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idGuest = ${idGuest}`,
+      `SELECT evite_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, eviteu_event.idEvent FROM eviteu_event INNER JOIN eviteu_guest ON eviteu_event.idEvent = eviteu_guest.idEvent INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idHost = ${idHost} AND idGuest = ${idGuest}`,
+      callback
+    );
+  }
+
+  static getGuestByUserEmail(userEmail, callback) {
+    db.query(
+      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, eviteu_event.idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE userEmail = ${userEmail}`,
+      callback
+    );
+  }
+
+  static getGuestByUserEmailNotId(userEmail, idGuest, callback) {
+    db.query(
+      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, eviteu_event.idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE userEmail = ${userEmail} AND idGuest != ${idGuest}`,
       callback
     );
   }
@@ -62,6 +76,20 @@ class Guest {
   static getGuestByIdEventEmail(idEvent, userEmail, callback) {
     db.query(
       `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idGuest, qty, status, invited, attend, idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idEvent = ${idEvent} AND userEmail = '${userEmail}'`,
+      callback
+    );
+  }
+
+  static getAllGuestByIdEvent(idEvent, callback) {
+    db.query(
+      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idEvent = ${idEvent}`,
+      callback
+    );
+  }
+
+  static getAllGuestByIdHostIdEvent(idHost, idEvent, callback) {
+    db.query(
+      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, eviteu_event.idEvent FROM eviteu_event INNER JOIN eviteu_guest ON eviteu_event.idEvent = eviteu_guest.idEvent INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idHost = ${idHost} AND eviteu_event.idEvent = ${idEvent}`,
       callback
     );
   }

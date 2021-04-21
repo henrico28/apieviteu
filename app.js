@@ -7,7 +7,6 @@ var cors = require("cors");
 
 var indexRouter = require("./routes/index");
 var authRouter = require("./routes/auth");
-var usersRouter = require("./routes/users");
 var hostRouter = require("./routes/host");
 var guestRouter = require("./routes/guest");
 var committeeRouter = require("./routes/committee");
@@ -32,7 +31,6 @@ app.use(cors());
 
 app.use("/", indexRouter);
 app.use("/", authRouter);
-app.use("/users", usersRouter);
 app.use("/host", hostRouter);
 app.use("/guest", guestRouter);
 app.use("/committee", committeeRouter);
