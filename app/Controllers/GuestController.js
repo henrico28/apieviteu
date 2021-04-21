@@ -13,8 +13,8 @@ const getGuest = (req, res, next) => {
       return res.status(400).json({
         error: err.message,
       });
-      return res.status(200).json({ result });
     }
+    return res.status(200).json({ result });
   });
 };
 
@@ -22,7 +22,7 @@ const getAllGuest = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
-  const idEvent = req.params.idEvent;
+  const idEvent = req.params.id;
   const idHost = req.user.idRole;
   Guest.getAllGuestByIdHostIdEvent(idHost, idEvent, (err, result) => {
     if (err) {
@@ -40,12 +40,13 @@ const createGuest = async (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
+  const idEvent = req.body.idEvent;
   const userData = {
     userName: req.body.userName,
     userEmail: req.body.userEmail,
   };
   const user = new User(userData);
-  Guest.getGuestByUserEmail(userData.userEmail, (err, data) => {
+  Guest.getGuestByUserEmailIdEvent(userData.userEmail, idEvent, (err, data) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -136,65 +137,72 @@ const updateGuest = async (req, res, next) => {
   }
   const idUser = req.body.idUser;
   const idGuest = req.body.idGuest;
+  const idEvent = req.body.idEvent;
   const userData = {
     userName: req.body.userName,
     userEmail: req.body.userEmail,
   };
   const user = new User(userData);
-  Guest.getGuestByUserEmailNotId(userData.userEmail, idGuest, (err, data) => {
-    if (err) {
-      return res.status(400).json({
-        error: err.message,
-      });
-    }
-    if (data.length >= 1) {
-      if (data[0].userEmail === userData.userEmail) {
-        return res.status(409).json({
-          error: "Email already exists.",
+  Guest.getGuestByUserEmailIdEventNotId(
+    userData.userEmail,
+    idEvent,
+    idGuest,
+    (err, data) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
         });
       }
-    } else {
-      user.updateUserNameEmail(idUser, (err) => {
-        if (err) {
-          return res.status(400).json({
-            error: err.message,
+      if (data.length >= 1) {
+        if (data[0].userEmail === userData.userEmail) {
+          return res.status(409).json({
+            error: "Email already exists.",
           });
         }
-        const guestData = {
-          qty: req.body.qty,
-          status: req.body.status,
-          attend: req.body.attend,
-        };
-        const guest = new Guest(guestData);
-        guest.updateGuest(idGuest, (err) => {
+      } else {
+        user.updateUserNameEmail(idUser, (err) => {
           if (err) {
             return res.status(400).json({
               error: err.message,
             });
           }
-          Guest.getGuestById(idGuest, (err, data) => {
+          const guestData = {
+            qty: req.body.qty,
+            status: req.body.status,
+            invited: 0,
+            attend: req.body.attend,
+          };
+          const guest = new Guest(guestData);
+          guest.updateGuest(idGuest, (err) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
               });
             }
-            return res.status(200).json({
-              message: `Guest ${data[0].userName} has been updated.`,
-              result: {
-                idUser: data[0].idUser,
-                userName: data[0].userName,
-                userEmail: data[0].userEmail,
-                idGuest: data[0].idGuest,
-                qty: data[0].qty,
-                status: data[0].status,
-                attend: data[0].attend,
-              },
+            Guest.getGuestById(idGuest, (err, data) => {
+              if (err) {
+                return res.status(400).json({
+                  error: err.message,
+                });
+              }
+              return res.status(200).json({
+                message: `Guest ${data[0].userName} has been updated.`,
+                result: {
+                  idUser: data[0].idUser,
+                  userName: data[0].userName,
+                  userEmail: data[0].userEmail,
+                  idGuest: data[0].idGuest,
+                  qty: data[0].qty,
+                  status: data[0].status,
+                  attend: data[0].attend,
+                },
+              });
             });
           });
         });
-      });
+      }
     }
-  });
+  );
 };
 
 const updateGuestRSVP = (req, res, next) => {

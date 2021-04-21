@@ -278,7 +278,7 @@ const logout = (req, res, next) => {
 
 const generateAccessToken = (data) => {
   return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "10s",
+    expiresIn: "1h",
   });
 };
 

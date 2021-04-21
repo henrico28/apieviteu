@@ -19,7 +19,7 @@ class Guest {
 
   updateGuest(idGuest, callback) {
     db.query(
-      `UPDATE eviteu_guest SET qty = ${this.qty}, status = ${this.status}, attend = ${this.attend} WHERE idGuest = ${idGuest} `,
+      `UPDATE eviteu_guest SET qty = ${this.qty}, status = ${this.status}, invited = ${this.invited}, attend = ${this.attend}  WHERE idGuest = ${idGuest} `,
       callback
     );
   }
@@ -54,21 +54,26 @@ class Guest {
 
   static getGuestByIdGuestIdHost(idGuest, idHost, callback) {
     db.query(
-      `SELECT evite_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, eviteu_event.idEvent FROM eviteu_event INNER JOIN eviteu_guest ON eviteu_event.idEvent = eviteu_guest.idEvent INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idHost = ${idHost} AND idGuest = ${idGuest}`,
+      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, eviteu_event.idEvent, eviteu_event.max FROM eviteu_event INNER JOIN eviteu_guest ON eviteu_event.idEvent = eviteu_guest.idEvent INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idHost = ${idHost} AND idGuest = ${idGuest}`,
       callback
     );
   }
 
-  static getGuestByUserEmail(userEmail, callback) {
+  static getGuestByUserEmailIdEvent(userEmail, idEvent, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, eviteu_event.idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE userEmail = ${userEmail}`,
+      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}' AND idEvent = ${idEvent}`,
       callback
     );
   }
 
-  static getGuestByUserEmailNotId(userEmail, idGuest, callback) {
+  static getGuestByUserEmailIdEventNotId(
+    userEmail,
+    idEvent,
+    idGuest,
+    callback
+  ) {
     db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, eviteu_event.idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE userEmail = ${userEmail} AND idGuest != ${idGuest}`,
+      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}' AND idEvent = ${idEvent} AND idGuest != ${idGuest}`,
       callback
     );
   }
