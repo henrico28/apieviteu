@@ -204,7 +204,7 @@ const refreshToken = (req, res, next) => {
   const email = req.body.userEmail;
   const refreshToken = req.body.refreshToken;
   if (email == null || refreshToken == null) return res.sendStatus(401);
-  User.getUserByEmail(email, (err, result) => {
+  User.getUserByEmailToken(email, refreshToken, (err, result) => {
     if (err) {
       return res.status(401).json({
         error: err.message,
@@ -212,14 +212,9 @@ const refreshToken = (req, res, next) => {
     }
     if (result.length === 0) {
       return res.status(401).json({
-        error: "Invalid Email",
+        error: "Invalid email or token.",
       });
     } else {
-      if (result[0].token !== refreshToken) {
-        return res.status(401).json({
-          error: "Invalid Refresh Token",
-        });
-      }
       jwt.verify(
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET,
@@ -252,7 +247,7 @@ const refreshToken = (req, res, next) => {
 const logout = (req, res, next) => {
   const email = req.body.userEmail;
   const refreshToken = req.body.refreshToken;
-  User.getUserByEmail(email, (err, data) => {
+  User.getUserByEmailToken(email, refreshToken, (err, data) => {
     if (err) {
       return res.status(401).json({
         error: err.message,
@@ -260,14 +255,9 @@ const logout = (req, res, next) => {
     }
     if (data.length === 0) {
       return res.status(409).json({
-        error: "Invalid Email",
+        error: "Invalid email or token.",
       });
     } else {
-      if (data[0].token !== refreshToken) {
-        return res.status(401).json({
-          error: "Invalid Token",
-        });
-      }
       const userData = {
         token: null,
       };
@@ -279,7 +269,7 @@ const logout = (req, res, next) => {
           });
         }
         return res.status(200).json({
-          message: `${data[0].userName} have been log out`,
+          message: `${data[0].userName} have been log out.`,
         });
       });
     }
@@ -288,7 +278,7 @@ const logout = (req, res, next) => {
 
 const generateAccessToken = (data) => {
   return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "1h",
+    expiresIn: "10s",
   });
 };
 
