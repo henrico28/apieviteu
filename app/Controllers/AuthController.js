@@ -16,7 +16,14 @@ const login = async (req, res, next) => {
         error: err.message,
       });
     }
-    if (data.length === 0) {
+    let verify = false;
+    if (data.length !== 0) {
+      verify = await bcrypt.compare(
+        loginData.userPassword,
+        data[0].userPassword
+      );
+    }
+    if (data.length === 0 || !verify) {
       Committee.getCommitteeByUserEmail(
         loginData.userEmail,
         async (err, data) => {
