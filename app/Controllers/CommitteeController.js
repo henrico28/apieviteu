@@ -86,54 +86,59 @@ const createCommittee = async (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
+  const idHost = req.user.idRole;
   const userData = {
     userName: req.body.userName,
     userEmail: req.body.userEmail,
   };
   const user = new User(userData);
-  Committee.getCommitteeByUserEmail(userData.userEmail, (err, data) => {
-    if (err) {
-      return res.status(400).json({
-        error: err.message,
-      });
-    }
-    if (data.length >= 1) {
-      if (data[0].userEmail === userData.userEmail) {
-        return res.status(409).json({
-          error: "Email already exists.",
+  Committee.getCommitteeByUserEmailIdHost(
+    userData.userEmail,
+    idHost,
+    (err, data) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
         });
       }
-    } else {
-      user.addUserNoPassword((err, result) => {
-        if (err) {
-          return res.status(400).json({
-            error: err.message,
+      if (data.length >= 1) {
+        if (data[0].userEmail === userData.userEmail) {
+          return res.status(409).json({
+            error: "Email already exists.",
           });
         }
-        const committeeData = {
-          active: 0,
-          idUser: result.insertId,
-          idHost: req.user.idRole,
-        };
-        const committee = new Committee(committeeData);
-        committee.addCommittee((err, result) => {
+      } else {
+        user.addUserNoPassword((err, result) => {
           if (err) {
             return res.status(400).json({
               error: err.message,
             });
           }
-          Committee.getCommitteeById(result.insertId, (err, data) => {
+          const committeeData = {
+            active: 0,
+            idUser: result.insertId,
+            idHost: req.user.idRole,
+          };
+          const committee = new Committee(committeeData);
+          committee.addCommittee((err, result) => {
             if (err) {
-              return res.status(400).json({ error: err.message });
+              return res.status(400).json({
+                error: err.message,
+              });
             }
-            return res.status(201).json({
-              message: `Committee ${data[0].userName} has been added.`,
+            Committee.getCommitteeById(result.insertId, (err, data) => {
+              if (err) {
+                return res.status(400).json({ error: err.message });
+              }
+              return res.status(201).json({
+                message: `Committee ${data[0].userName} has been added.`,
+              });
             });
           });
         });
-      });
+      }
     }
-  });
+  );
 };
 
 const deleteCommittee = (req, res, next) => {
@@ -176,13 +181,15 @@ const updateCommittee = async (req, res, next) => {
   }
   const idUser = req.body.idUser;
   const idCommittee = req.body.idCommittee;
+  const idHost = req.user.idRole;
   const userData = {
     userName: req.body.userName,
     userEmail: req.body.userEmail,
   };
   const user = new User(userData);
-  Committee.getCommitteeByUserEmailNotId(
+  Committee.getCommitteeByUserEmailIdHostNotId(
     userData.userEmail,
+    idHost,
     idCommittee,
     (err, data) => {
       if (err) {

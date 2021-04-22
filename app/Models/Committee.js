@@ -42,23 +42,28 @@ class Committee {
     );
   }
 
-  static getCommitteeByIdEventEmail(idEvent, userEmail, callback) {
-    db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee, active, idEvent FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE idEvent = ${idEvent} AND userEmail = '${userEmail}'`,
-      callback
-    );
-  }
-
   static getCommitteeByUserEmail(userEmail, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee, active, idHost, token FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}'`,
+      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee, active, idHost, token FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser WHERE userEmail = '${userEmail}' AND active = 1`,
       callback
     );
   }
 
-  static getCommitteeByUserEmailNotId(userEmail, idCommittee, callback) {
+  static getCommitteeByUserEmailIdHost(userEmail, idHost, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, idCommittee, active, idHost, token FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}' AND idCommittee != ${idCommittee}`,
+      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee, active, idHost, token FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}' AND idHost = ${idHost}`,
+      callback
+    );
+  }
+
+  static getCommitteeByUserEmailIdHostNotId(
+    userEmail,
+    idHost,
+    idCommittee,
+    callback
+  ) {
+    db.query(
+      `SELECT eviteu_user.idUser, userName, userEmail, idCommittee, active, idHost, token FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}' AND idHost = ${idHost} AND idCommittee != ${idCommittee}`,
       callback
     );
   }

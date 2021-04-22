@@ -6,61 +6,107 @@ const Guest = require("../Models/Guest");
 const Committee = require("../Models/Committee");
 
 const login = async (req, res, next) => {
-  const hostData = {
+  const loginData = {
     userEmail: req.body.userEmail,
     userPassword: req.body.userPassword,
   };
-  Host.getHostByUserEmail(hostData.userEmail, async (err, data) => {
+  Host.getHostByUserEmail(loginData.userEmail, async (err, data) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
       });
     }
     if (data.length === 0) {
-      return res.status(401).json({
-        error: "No account with that email found.",
-      });
-    }
-    try {
-      let validate = await bcrypt.compare(
-        hostData.userPassword,
-        data[0].userPassword
-      );
-      if (validate) {
-        let tokenContent = {
-          idUser: data[0].idUser,
-          email: hostData.userEmail,
-          role: 1,
-          idRole: data[0].idHost,
-        };
-        const accessToken = generateAccessToken(tokenContent);
-        const refreshToken = jwt.sign(
-          tokenContent,
-          process.env.REFRESH_TOKEN_SECRET
-        );
-        const userData = {
-          token: refreshToken,
-        };
-        const user = new User(userData);
-        user.updateUserToken(data[0].idUser, (err) => {
+      Committee.getCommitteeByUserEmail(
+        loginData.userEmail,
+        async (err, data) => {
           if (err) {
-            return res.status(400).json({
-              error: err.message,
-            });
+            return res.status(400).json({ error: err.message });
           }
-          return res.status(200).json({
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-            name: data[0].userName,
+          if (data.length === 0) {
+            return res.status(401).json({ error: "Invalid Email." });
+          } else {
+            try {
+              let validate = await bcrypt.compare(
+                loginData.userPassword,
+                data[0].userPassword
+              );
+              if (validate) {
+                let tokenContent = {
+                  idUser: data[0].idUser,
+                  email: loginData.userEmail,
+                  role: 2,
+                  idRole: data[0].idCommittee,
+                };
+                const accessToken = generateAccessToken(tokenContent);
+                const refreshToken = jwt.sign(
+                  tokenContent,
+                  process.env.REFRESH_TOKEN_SECRET
+                );
+                const userData = {
+                  token: refreshToken,
+                };
+                user.updateUserToken(data[0].idUser, (err) => {
+                  if (err) {
+                    return res.status(400).json({ error: err.message });
+                  }
+                  return res.status(200).json({
+                    accessToken: accessToken,
+                    refreshToken: refreshToken,
+                    name: data[0].userName,
+                    role: 2,
+                  });
+                });
+              } else {
+                return res
+                  .status(401)
+                  .json({ error: "Invalid Email or Password." });
+              }
+            } catch {
+              return res.sendStatus(500);
+            }
+          }
+        }
+      );
+    } else {
+      try {
+        let validate = await bcrypt.compare(
+          loginData.userPassword,
+          data[0].userPassword
+        );
+        if (validate) {
+          let tokenContent = {
+            idUser: data[0].idUser,
+            email: loginData.userEmail,
+            role: 1,
+            idRole: data[0].idHost,
+          };
+          const accessToken = generateAccessToken(tokenContent);
+          const refreshToken = jwt.sign(
+            tokenContent,
+            process.env.REFRESH_TOKEN_SECRET
+          );
+          const userData = {
+            token: refreshToken,
+          };
+          const user = new User(userData);
+          user.updateUserToken(data[0].idUser, (err) => {
+            if (err) {
+              return res.status(400).json({ error: err.message });
+            }
+            return res.status(200).json({
+              accessToken: accessToken,
+              refreshToken: refreshToken,
+              name: data[0].userName,
+              role: 1,
+            });
           });
-        });
-      } else {
-        return res.status(401).json({
-          error: "Invalid Email or Password.",
-        });
+        } else {
+          return res.status(401).json({ error: "Invalid Email or Password." });
+        }
+      } catch {
+        return res.sendStatus(500);
       }
-    } catch {
-      return res.sendStatus(500);
     }
   });
 };
@@ -82,63 +128,7 @@ const loginToEvent = (req, res, next) => {
         });
       }
       if (data.length === 0) {
-        Committee.getCommitteeByIdEventEmail(
-          idEvent,
-          loginData.userEmail,
-          async (err, data) => {
-            if (err) {
-              return res.status(400).json({
-                error: err.message,
-              });
-            }
-            if (data.length === 0) {
-              return res.status(401).json({
-                error: "Invalid Email",
-              });
-            } else {
-              try {
-                let validate = await bcrypt.compare(
-                  loginData.userPassword,
-                  data[0].userPassword
-                );
-                if (validate) {
-                  let tokenContent = {
-                    idUser: data[0].idUser,
-                    email: loginData.userEmail,
-                    role: 2,
-                    idEvent: idEvent,
-                  };
-                  const accessToken = generateAccessToken(tokenContent);
-                  const refreshToken = jwt.sign(
-                    tokenContent,
-                    process.env.REFRESH_TOKEN_SECRET
-                  );
-                  const userData = {
-                    token: refreshToken,
-                  };
-                  const user = new User(userData);
-                  user.updateUserToken(data[0].idUser, (err) => {
-                    if (err) {
-                      return res.status(400).json({
-                        error: err.message,
-                      });
-                    }
-                    return res.status(200).json({
-                      accessToken: accessToken,
-                      refreshToken: refreshToken,
-                    });
-                  });
-                } else {
-                  return res.status(401).json({
-                    error: "Invalid Email or Password",
-                  });
-                }
-              } catch {
-                return res.sendStatus(500);
-              }
-            }
-          }
-        );
+        return res.status(401).json({ error: "Invalid Email." });
       } else {
         try {
           let validate = await bcrypt.compare(
@@ -150,6 +140,8 @@ const loginToEvent = (req, res, next) => {
               idUser: data[0].idUser,
               email: loginData.userEmail,
               role: 3,
+              idRole: data[0].idGuest,
+              name: data[0].userName,
               idEvent: idEvent,
             };
             const accessToken = generateAccessToken(tokenContent);
@@ -163,9 +155,7 @@ const loginToEvent = (req, res, next) => {
             const user = new User(userData);
             user.updateUserToken(data[0].idUser, (err) => {
               if (err) {
-                return res.status(400).json({
-                  error: err.message,
-                });
+                return res.status(400).json({ error: err.message });
               }
               return res.status(200).json({
                 accessToken: accessToken,
@@ -173,9 +163,7 @@ const loginToEvent = (req, res, next) => {
               });
             });
           } else {
-            return res.status(401).json({
-              error: "Invalid Email or Password",
-            });
+            return res.status(401).json({ error: "Invalid Email or Password" });
           }
         } catch {
           return res.sendStatus(500);
