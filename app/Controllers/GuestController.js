@@ -30,9 +30,23 @@ const getAllGuest = (req, res, next) => {
         error: err.message,
       });
     }
-    return res.status(200).json({
-      result,
-    });
+    return res.status(200).json({ result });
+  });
+};
+
+const getAllAttendedGuest = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idEvent = req.params.id;
+  const idHost = req.user.idRole;
+  Guest.getAllAttendedGuestByIdHostIdEvent(idHost, idEvent, (err, result) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    return res.status(200).json({ result });
   });
 };
 
@@ -313,6 +327,7 @@ const inviteGuest = async (req, res, next) => {
 module.exports = {
   getGuest,
   getAllGuest,
+  getAllAttendedGuest,
   createGuest,
   deleteGuest,
   updateGuest,

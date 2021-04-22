@@ -29,9 +29,7 @@ const getEventForGuest = (req, res, next) => {
         error: err.message,
       });
     }
-    return res.status(200).json({
-      result,
-    });
+    return res.status(200).json({ result });
   });
 };
 
@@ -49,9 +47,7 @@ const getAllEvent = (req, res, next) => {
         error: err.message,
       });
     }
-    return res.status(200).json({
-      result,
-    });
+    return res.status(200).json({ result });
   });
 };
 
@@ -80,6 +76,21 @@ const getAllAssignedCommittee = (req, res, next) => {
         return res.status(200).json({ result });
       });
     }
+  });
+};
+
+const getAllWeddingEvent = (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idHost = req.user.idRole;
+  Event.getAllEventByIdHostIdType(idHost, 1, (err, result) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    return res.status(200).json({ result });
   });
 };
 
@@ -309,6 +320,7 @@ module.exports = {
   getEventForGuest,
   getAllEvent,
   getAllAssignedCommittee,
+  getAllWeddingEvent,
   createEvent,
   deleteEvent,
   updateEvent,

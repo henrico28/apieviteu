@@ -50,7 +50,14 @@ class Event {
 
   static getAllEventByIdHost(idHost, callback) {
     db.query(
-      `SELECT eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary, eventAccent, max, idHost, idType, COUNT(idGuest) AS totalGuestInvited,SUM(status) AS totalGuestRsvp,SUM(qty) AS totalGuestBrought, SUM(attend) AS totalGuestAttended FROM eviteu_guest RIGHT OUTER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent WHERE idHost = ${idHost} GROUP BY idEvent`,
+      `SELECT eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary, eventAccent, max, idHost, typeName, COUNT(idGuest) AS totalGuestInvited,SUM(status) AS totalGuestRsvp,SUM(qty) AS totalGuestBrought, SUM(attend) AS totalGuestAttended FROM eviteu_guest RIGHT OUTER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent INNER JOIN eviteu_type ON eviteu_event.idType = eviteu_type.idType WHERE idHost = ${idHost} GROUP BY idEvent`,
+      callback
+    );
+  }
+
+  static getAllEventByIdHostIdType(idHost, idType, callback) {
+    db.query(
+      `SELECT * FROM eviteu_event WHERE idHost = ${idHost} AND idType = ${idType}`,
       callback
     );
   }

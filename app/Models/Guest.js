@@ -99,6 +99,13 @@ class Guest {
     );
   }
 
+  static getAllAttendedGuestByIdHostIdEvent(idHost, idEvent, callback) {
+    db.query(
+      `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, eviteu_event.idEvent FROM eviteu_event INNER JOIN eviteu_guest ON eviteu_event.idEvent = eviteu_guest.idEvent INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idHost = ${idHost} AND eviteu_event.idEvent = ${idEvent} AND attend = 1`,
+      callback
+    );
+  }
+
   static deleteGuestByIdGuest(idGuest, callback) {
     db.query(`DELETE FROM eviteu_guest WHERE idGuest = ${idGuest}`, callback);
   }
