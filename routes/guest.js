@@ -10,6 +10,11 @@ router.get(
   auth.authenticateToken,
   useController.getAllAttendedGuest
 ); // Get All Attended Guest
+router.get(
+  "/attendance/:id",
+  auth.authenticateToken,
+  useController.getGuestAttendance
+); // Get Guest Attendance
 router.post("/create", auth.authenticateToken, useController.createGuest); // Create Guest
 router.delete("/delete", auth.authenticateToken, useController.deleteGuest); // Delete Guest
 router.put("/update", auth.authenticateToken, useController.updateGuest); // Update Guest

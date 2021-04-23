@@ -50,6 +50,21 @@ const getAllAttendedGuest = (req, res, next) => {
   });
 };
 
+const getGuestAttendance = (req, res, next) => {
+  if (req.user.role != 1 && req.user.role != 2) {
+    return res.sendStatus(401);
+  }
+  const idEvent = req.params.id;
+  Guest.getAllGuestByIdEvent(idEvent, (err, result) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    return res.status(200).json({ result });
+  });
+};
+
 const createGuest = async (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
@@ -256,6 +271,7 @@ const updateGuestAttend = (req, res, next) => {
     return res.sendStatus(401);
   }
   const idGuest = req.body.idGuest;
+  const idEvent = req.body.idEvent;
   const guestData = {
     attend: req.body.attend,
   };
@@ -272,8 +288,16 @@ const updateGuestAttend = (req, res, next) => {
           error: err.message,
         });
       }
-      return res.status(200).json({
-        message: `Guest ${data[0].userName} has attended.`,
+      Guest.getAllGuestByIdEvent(idEvent, (err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        return res.status(200).json({
+          message: `Guest ${data[0].userName} attendance has been updated.`,
+          result,
+        });
       });
     });
   });
@@ -328,6 +352,7 @@ module.exports = {
   getGuest,
   getAllGuest,
   getAllAttendedGuest,
+  getGuestAttendance,
   createGuest,
   deleteGuest,
   updateGuest,

@@ -38,10 +38,22 @@ const getAllEvent = (req, res, next) => {
     return res.sendStatus(401);
   }
   const idHost = req.user.idRole;
-  if (idHost == undefined) {
+  Event.getAllEventByIdHost(idHost, (err, result) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    return res.status(200).json({ result });
+  });
+};
+
+const getAllEventForCommittee = (req, res, next) => {
+  if (req.user.role != 2) {
     return res.sendStatus(401);
   }
-  Event.getAllEventByIdHost(idHost, (err, result) => {
+  const idCommittee = req.user.idRole;
+  Event.getAllEventByIdCommittee(idCommittee, (err, result) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -319,6 +331,7 @@ module.exports = {
   getEventForHost,
   getEventForGuest,
   getAllEvent,
+  getAllEventForCommittee,
   getAllAssignedCommittee,
   getAllWeddingEvent,
   createEvent,

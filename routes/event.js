@@ -86,6 +86,11 @@ router.get(
 ); // Get Event For Guest
 router.get("/lists", auth.authenticateToken, useController.getAllEvent); // Get All Events
 router.get(
+  "/manage",
+  auth.authenticateToken,
+  useController.getAllEventForCommittee
+); // Get All Event Manage By Committee
+router.get(
   "/wedding",
   auth.authenticateToken,
   useController.getAllWeddingEvent

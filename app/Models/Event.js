@@ -55,6 +55,13 @@ class Event {
     );
   }
 
+  static getAllEventByIdCommittee(idCommittee, callback) {
+    db.query(
+      `eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary, eventAccent, max, idHost, typeName FROM eviteu_manage INNER JOIN eviteu_event ON eviteu_manage.idEvent = eviteu_event.idEvent WHERE idCommittee = ${idCommittee}`,
+      callback
+    );
+  }
+
   static getAllEventByIdHostIdType(idHost, idType, callback) {
     db.query(
       `SELECT * FROM eviteu_event WHERE idHost = ${idHost} AND idType = ${idType}`,
