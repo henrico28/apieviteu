@@ -1,6 +1,14 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("../Models/User");
 const Committee = require("../Models/Committee");
+const Email = require("../Models/Email");
+var domain = "sandboxadb05a97767742a688d70f7307af35cd.mailgun.org";
+var mailgun = require("mailgun-js")({
+  apiKey: process.env.MAILGUN_API_KEY,
+  domain: domain,
+});
+var MailComposer = require("nodemailer/lib/mail-composer");
 
 const getCommittee = (req, res, next) => {
   if (req.user.role != 1) {
@@ -214,7 +222,7 @@ const updateCommittee = async (req, res, next) => {
             active: 0,
           };
           const committe = new Committee(committeData);
-          committe.updateCommitteeActive(idCommittee, (err, result) => {
+          committe.updateCommitteeActive(idCommittee, (err) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
@@ -291,38 +299,95 @@ const activateCommittee = async (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
   }
+  const idUser = req.body.idUser;
+  const idCommittee = req.body.idCommittee;
+  const idHost = req.user.idRole;
   try {
-    const idCommittee = req.body.idCommittee;
+    const password = Math.random().toString(36).slice(-8);
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(req.body.userPassword, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
     const userData = {
       userPassword: hashedPassword,
     };
-    const committeeData = {
-      active: 1,
-    };
     const user = new User(userData);
-    const committee = new Committee(committeeData);
-    Committee.getCommitteeByIdCommittee(idCommittee, (err, data) => {
+    user.updateUserPassword(idUser, (err) => {
       if (err) {
         return res.status(400).json({
           error: err.message,
         });
       }
-      user.updateUserPassword(data[0].idUser, (err) => {
+      const committeeData = {
+        active: 1,
+      };
+      const committee = new Committee(committeeData);
+      committee.updateCommitteeActive(idCommittee, (err) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
           });
         }
-        committee.updateCommitteeActive(idCommittee, (err) => {
+        Committee.getCommitteeEmailDetailById(idCommittee, (err, data) => {
           if (err) {
             return res.status(400).json({
               error: err.message,
             });
           }
-          return res.status(200).json({
-            message: `${data[0].userName} have been activated`,
+          let tokenContent = {
+            idUser: data[0].idUser,
+            email: data[0].userEmail,
+            role: 2,
+            idRole: data[0].idCommittee,
+          };
+          const verificationToken = jwt.sign(
+            tokenContent,
+            process.env.VERIFICATION_TOKEN_SECRET
+          );
+          let credentials = {
+            email: data[0].userEmail,
+            password: password,
+            token: verificationToken,
+          };
+          let emailData = {
+            detail: data[0],
+            credentials: credentials,
+          };
+          const email = new Email(emailData);
+          const emailContent = email.generateCommitteeEmail();
+          let mailOptions = {
+            from: data[0].hostEmail,
+            to: data[0].userEmail,
+            subject: "Committee Account Activation",
+            text: "Committee Account Activation",
+            html: emailContent,
+          };
+          let mail = new MailComposer(mailOptions);
+          mail.compile().build((err, message) => {
+            if (err) {
+              return res.status(400).json({
+                error: err.message,
+              });
+            }
+            let dataToSend = {
+              to: data[0].userEmail,
+              message: message.toString("ascii"),
+            };
+            mailgun.messages().sendMime(dataToSend, (sendError, body) => {
+              if (sendError) {
+                return res.status(400).json({ error: sendError });
+              }
+              Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
+                if (err) {
+                  return res.status(400).json({
+                    error: err.message,
+                  });
+                }
+                return res.status(200).json({
+                  message: `Committee ${data[0].userName} has been activated.`,
+                  result,
+                  body,
+                });
+              });
+            });
           });
         });
       });

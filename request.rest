@@ -17,8 +17,8 @@ POST http://localhost:8000/login
 Content-Type: application/json
 
 {
-  "userEmail": "henricoleodra@gmail.com",
-  "userPassword": "123456"
+  "userEmail": "leodra28@gmail.com",
+  "userPassword": "stlr9mdb"
 }
 
 ###
@@ -161,3 +161,11 @@ Content-Type: application/json
 ###
 GET http://localhost:8000/event/lists
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZFVzZXIiOjEsImVtYWlsIjoiaGVucmljb0BnbWFpbC5jb20iLCJyb2xlIjoxLCJpYXQiOjE2MTA0NzcyMTEsImV4cCI6MTYxMDQ3OTAxMX0.Z6biMMnDK5eH0GY4aFlVJYdKu7WF-F6sYLk5tORbrGw
+
+###
+PUT http://localhost:8000/committee/activate
+Content-Type: application/json
+
+{
+  "idCommittee": "1"
+}

@@ -57,7 +57,7 @@ class Event {
 
   static getAllEventByIdCommittee(idCommittee, callback) {
     db.query(
-      `eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary, eventAccent, max, idHost, typeName FROM eviteu_manage INNER JOIN eviteu_event ON eviteu_manage.idEvent = eviteu_event.idEvent WHERE idCommittee = ${idCommittee}`,
+      `SELECT eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, eventPrimary, eventSecondary, eventAccent, max, idHost, typeName FROM eviteu_manage INNER JOIN eviteu_event ON eviteu_manage.idEvent = eviteu_event.idEvent INNER JOIN eviteu_type ON eviteu_event.idType = eviteu_type.idType WHERE idCommittee = ${idCommittee}`,
       callback
     );
   }
