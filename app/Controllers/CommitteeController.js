@@ -410,97 +410,111 @@ const activateAllCommittee = async (req, res, next) => {
         error: err.message,
       });
     }
-    await data.forEach(async (committee, idx, array) => {
-      try {
-        const password = Math.random().toString(36).slice(-8);
-        const salt = await bcrypt.genSalt();
-        const hashedPassword = await bcrypt.hash(password, salt);
-        const userData = {
-          userPassword: hashedPassword,
-        };
-        const user = new User(userData);
-        user.updateUserPassword(committee.idUser, (err) => {
-          if (err) {
-            return res.status(400).json({
-              error: err.message,
-            });
-          }
-          const committeeData = {
-            active: 1,
+    if (data.length !== 0) {
+      await data.forEach(async (committee, idx, array) => {
+        try {
+          const password = Math.random().toString(36).slice(-8);
+          const salt = await bcrypt.genSalt();
+          const hashedPassword = await bcrypt.hash(password, salt);
+          const userData = {
+            userPassword: hashedPassword,
           };
-          const tmpCommittee = new Committee(committeeData);
-          tmpCommittee.updateCommitteeActive(committee.idCommittee, (err) => {
+          const user = new User(userData);
+          user.updateUserPassword(committee.idUser, (err) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
               });
             }
-            const tokenContent = {
-              idUser: committee.idUser,
-              email: committee.userEmail,
-              role: 2,
-              idRole: committee.idCommittee,
+            const committeeData = {
+              active: 1,
             };
-            const verificationToken = jwt.sign(
-              tokenContent,
-              process.env.VERIFICATION_TOKEN_SECRET
-            );
-            const credentials = {
-              email: committee.userEmail,
-              password: password,
-              token: verificationToken,
-            };
-            const emailData = {
-              detail: data[0],
-              credentials: credentials,
-            };
-            const email = new Email(emailData);
-            const emailContent = email.generateCommitteeEmail();
-            const mailOptions = {
-              from: committee.hostEmail,
-              to: committee.userEmail,
-              subject: "Committee Account Activation",
-              text: "Committee Account Activation",
-              html: emailContent,
-            };
-            const mail = new MailComposer(mailOptions);
-            mail.compile().build((err, message) => {
+            const tmpCommittee = new Committee(committeeData);
+            tmpCommittee.updateCommitteeActive(committee.idCommittee, (err) => {
               if (err) {
                 return res.status(400).json({
                   error: err.message,
                 });
               }
-              const dataToSend = {
-                to: committee.userEmail,
-                message: message.toString("ascii"),
+              const tokenContent = {
+                idUser: committee.idUser,
+                email: committee.userEmail,
+                role: 2,
+                idRole: committee.idCommittee,
               };
-              mailgun.messages().sendMime(dataToSend, (sendError, body) => {
-                if (sendError) {
+              const verificationToken = jwt.sign(
+                tokenContent,
+                process.env.VERIFICATION_TOKEN_SECRET
+              );
+              const credentials = {
+                email: committee.userEmail,
+                password: password,
+                token: verificationToken,
+              };
+              const emailData = {
+                detail: data[0],
+                credentials: credentials,
+              };
+              const email = new Email(emailData);
+              const emailContent = email.generateCommitteeEmail();
+              const mailOptions = {
+                from: committee.hostEmail,
+                to: committee.userEmail,
+                subject: "Committee Account Activation",
+                text: "Committee Account Activation",
+                html: emailContent,
+              };
+              const mail = new MailComposer(mailOptions);
+              mail.compile().build((err, message) => {
+                if (err) {
                   return res.status(400).json({
-                    error: sendError,
+                    error: err.message,
                   });
                 }
-                if (idx === array.length - 1) {
-                  Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
-                    if (err) {
-                      return res.status(400).json({
-                        error: err.message,
-                      });
-                    }
-                    return res.status(200).json({
-                      message: "All committee has been activated",
-                      result,
+                const dataToSend = {
+                  to: committee.userEmail,
+                  message: message.toString("ascii"),
+                };
+                mailgun.messages().sendMime(dataToSend, (sendError, body) => {
+                  if (sendError) {
+                    return res.status(400).json({
+                      error: sendError,
                     });
-                  });
-                }
+                  }
+                  if (idx === array.length - 1) {
+                    Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
+                      if (err) {
+                        return res.status(400).json({
+                          error: err.message,
+                        });
+                      }
+                      return res.status(200).json({
+                        message: "All committee has been activated",
+                        result,
+                      });
+                    });
+                  }
+                });
               });
             });
           });
+        } catch {
+          return res.sendStatus(500);
+        }
+      });
+    } else {
+      Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        return res.status(200).json({
+          message: "All committee has been activated",
+          result,
         });
-      } catch {
-        return res.sendStatus(500);
-      }
-    });
+      });
+    }
   });
 };
 

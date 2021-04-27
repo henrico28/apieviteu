@@ -273,55 +273,66 @@ const logout = (req, res, next) => {
 };
 
 const verifyToken = (req, res, next) => {
-  const verifyToken = req.body.verifyToken;
-  jwt.verify(verifyToken, process.VERIFICATION_TOKEN_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({
-        error: err.message,
-      });
-    }
-    User.getUserById(user.idUser, (err, data) => {
+  const verificationToken = req.body.verificationToken;
+  jwt.verify(
+    verificationToken,
+    process.env.VERIFICATION_TOKEN_SECRET,
+    (err, user) => {
       if (err) {
-        return res.status(400).json({
+        return res.status(403).json({
           error: err.message,
         });
       }
-      if (data.length === 0) {
-        return res.status(400).json({
-          error: "Invalid token.",
-        });
-      } else {
-        const tokenContent = {
-          idUser: user.idUser,
-          email: user.email,
-          role: user.role,
-          idRole: user.idRole,
-        };
-        const accessToken = generateAccessToken(tokenContent);
-        const refreshToken = jwt.sign(
-          tokenContent,
-          process.env.REFRESH_TOKEN_SECRET
-        );
-        const userData = {
-          token: refreshToken,
-        };
-        const user = new User(userData);
-        user.updateUserToken(data[0].idUser, (err) => {
-          if (err) {
-            return res.status(400).json({
-              error: err.message,
-            });
-          }
-          return res.status(200).json({
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-            name: data[0].userName,
-            role: user.role,
+      const userData = {
+        idUser: user.idUser,
+        email: user.email,
+        role: user.role,
+        idRole: user.idRole,
+      };
+      User.getUserById(userData.idUser, (err, data) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
           });
-        });
-      }
-    });
-  });
+        }
+        if (data.length === 0) {
+          return res.status(400).json({
+            error: "Invalid token.",
+          });
+        } else {
+          const tokenContent = {
+            idUser: userData.idUser,
+            email: userData.email,
+            role: userData.role,
+            idRole: userData.idRole,
+          };
+          const accessToken = generateAccessToken(tokenContent);
+          const refreshToken = jwt.sign(
+            tokenContent,
+            process.env.REFRESH_TOKEN_SECRET
+          );
+          const tmpUserData = {
+            token: refreshToken,
+          };
+          const tmpUser = new User(tmpUserData);
+          tmpUser.updateUserToken(data[0].idUser, (err) => {
+            if (err) {
+              return res.status(401).json({
+                error: err.message,
+              });
+            }
+            return res.status(200).json({
+              accessToken: accessToken,
+              refreshToken: refreshToken,
+              name: data[0].userName,
+              role: userData.role,
+              email: data[0].userEmail,
+            });
+          });
+        }
+      });
+    }
+  );
 };
 
 const generateAccessToken = (data) => {
