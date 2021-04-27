@@ -24,5 +24,10 @@ router.put(
   auth.authenticateToken,
   useController.activateCommittee
 ); // Activate Committee
+router.put(
+  "/activateAll",
+  auth.authenticateToken,
+  useController.activateAllCommittee
+); // Activate All Committee
 
 module.exports = router;

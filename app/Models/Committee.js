@@ -70,7 +70,7 @@ class Committee {
 
   static getCommitteeEmailDetailById(idCommittee, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, eviteu_user.userName, eviteu_user.userEmail, userHost.userEmail AS hostEmail, eviteu_host.phoneNumber AS hostPhoneNumber FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser INNER JOIN eviteu_host ON eviteu_committee.idHost = eviteu_host.idHost INNER JOIN eviteu_user AS userHost ON eviteu_host.idUser = userHost.idUser WHERE idCommittee = ${idCommittee}`,
+      `SELECT eviteu_user.idUser, eviteu_user.userName, eviteu_user.userEmail, userHost.userEmail AS hostEmail, eviteu_host.phoneNumber AS hostPhoneNumber, eviteu_committee.idCommittee FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser INNER JOIN eviteu_host ON eviteu_committee.idHost = eviteu_host.idHost INNER JOIN eviteu_user AS userHost ON eviteu_host.idUser = userHost.idUser WHERE idCommittee = ${idCommittee}`,
       callback
     );
   }
@@ -85,6 +85,13 @@ class Committee {
   static getAllAssignedEventById(idCommittee, callback) {
     db.query(
       `SELECT eviteu_event.idEvent, eventTitle, CASE WHEN assignedEvent.idCommittee IS NULL THEN 0 ELSE 1 END AS status FROM (SELECT * FROM eviteu_manage WHERE idCommittee = ${idCommittee}) as assignedEvent RIGHT OUTER JOIN eviteu_event ON assignedEvent.idEvent = eviteu_event.idEvent`,
+      callback
+    );
+  }
+
+  static getAllUnactiveCommitteeByIdHost(idHost, callback) {
+    db.query(
+      `SELECT eviteu_user.idUser, eviteu_user.userName, eviteu_user.userEmail, userHost.userEmail AS hostEmail, eviteu_host.phoneNumber AS hostPhoneNumber, eviteu_committee.idCommittee FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser INNER JOIN eviteu_host ON eviteu_committee.idHost = eviteu_host.idHost INNER JOIN eviteu_user AS userHost ON eviteu_host.idUser = userHost.idUser WHERE eviteu_committee.idHost = ${idHost} AND eviteu_committee.active = 0`,
       callback
     );
   }

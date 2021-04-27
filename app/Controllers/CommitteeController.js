@@ -332,7 +332,7 @@ const activateCommittee = async (req, res, next) => {
               error: err.message,
             });
           }
-          let tokenContent = {
+          const tokenContent = {
             idUser: data[0].idUser,
             email: data[0].userEmail,
             role: 2,
@@ -342,38 +342,40 @@ const activateCommittee = async (req, res, next) => {
             tokenContent,
             process.env.VERIFICATION_TOKEN_SECRET
           );
-          let credentials = {
+          const credentials = {
             email: data[0].userEmail,
             password: password,
             token: verificationToken,
           };
-          let emailData = {
+          const emailData = {
             detail: data[0],
             credentials: credentials,
           };
           const email = new Email(emailData);
           const emailContent = email.generateCommitteeEmail();
-          let mailOptions = {
+          const mailOptions = {
             from: data[0].hostEmail,
             to: data[0].userEmail,
             subject: "Committee Account Activation",
             text: "Committee Account Activation",
             html: emailContent,
           };
-          let mail = new MailComposer(mailOptions);
+          const mail = new MailComposer(mailOptions);
           mail.compile().build((err, message) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
               });
             }
-            let dataToSend = {
+            const dataToSend = {
               to: data[0].userEmail,
               message: message.toString("ascii"),
             };
             mailgun.messages().sendMime(dataToSend, (sendError, body) => {
               if (sendError) {
-                return res.status(400).json({ error: sendError });
+                return res.status(400).json({
+                  error: sendError,
+                });
               }
               Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
                 if (err) {
@@ -397,6 +399,111 @@ const activateCommittee = async (req, res, next) => {
   }
 };
 
+const activateAllCommittee = async (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idHost = req.user.idRole;
+  Committee.getAllUnactiveCommitteeByIdHost(idHost, async (err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    await data.forEach(async (committee, idx, array) => {
+      try {
+        const password = Math.random().toString(36).slice(-8);
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const userData = {
+          userPassword: hashedPassword,
+        };
+        const user = new User(userData);
+        user.updateUserPassword(committee.idUser, (err) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          const committeeData = {
+            active: 1,
+          };
+          const tmpCommittee = new Committee(committeeData);
+          tmpCommittee.updateCommitteeActive(committee.idCommittee, (err) => {
+            if (err) {
+              return res.status(400).json({
+                error: err.message,
+              });
+            }
+            const tokenContent = {
+              idUser: committee.idUser,
+              email: committee.userEmail,
+              role: 2,
+              idRole: committee.idCommittee,
+            };
+            const verificationToken = jwt.sign(
+              tokenContent,
+              process.env.VERIFICATION_TOKEN_SECRET
+            );
+            const credentials = {
+              email: committee.userEmail,
+              password: password,
+              token: verificationToken,
+            };
+            const emailData = {
+              detail: data[0],
+              credentials: credentials,
+            };
+            const email = new Email(emailData);
+            const emailContent = email.generateCommitteeEmail();
+            const mailOptions = {
+              from: committee.hostEmail,
+              to: committee.userEmail,
+              subject: "Committee Account Activation",
+              text: "Committee Account Activation",
+              html: emailContent,
+            };
+            const mail = new MailComposer(mailOptions);
+            mail.compile().build((err, message) => {
+              if (err) {
+                return res.status(400).json({
+                  error: err.message,
+                });
+              }
+              const dataToSend = {
+                to: committee.userEmail,
+                message: message.toString("ascii"),
+              };
+              mailgun.messages().sendMime(dataToSend, (sendError, body) => {
+                if (sendError) {
+                  return res.status(400).json({
+                    error: sendError,
+                  });
+                }
+                if (idx === array.length - 1) {
+                  Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
+                    if (err) {
+                      return res.status(400).json({
+                        error: err.message,
+                      });
+                    }
+                    return res.status(200).json({
+                      message: "All committee has been activated",
+                      result,
+                    });
+                  });
+                }
+              });
+            });
+          });
+        });
+      } catch {
+        return res.sendStatus(500);
+      }
+    });
+  });
+};
+
 module.exports = {
   getCommittee,
   getAllCommittee,
@@ -407,4 +514,5 @@ module.exports = {
   updateCommittee,
   assignEvent,
   activateCommittee,
+  activateAllCommittee,
 };
