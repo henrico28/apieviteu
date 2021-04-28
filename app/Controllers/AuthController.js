@@ -34,16 +34,23 @@ const login = async (req, res, next) => {
             return res.status(401).json({ error: "Invalid Email." });
           } else {
             try {
-              let validate = await bcrypt.compare(
-                loginData.userPassword,
-                data[0].userPassword
-              );
-              if (validate) {
+              let committeeData = null;
+              for (let i = 0; i < data.length; i++) {
+                let validate = await bcrypt.compare(
+                  loginData.userPassword,
+                  data[i].userPassword
+                );
+                if (validate) {
+                  committeeData = data[i];
+                  break;
+                }
+              }
+              if (committeeData) {
                 let tokenContent = {
-                  idUser: data[0].idUser,
+                  idUser: committeeData.idUser,
                   email: loginData.userEmail,
                   role: 2,
-                  idRole: data[0].idCommittee,
+                  idRole: committeeData.idCommittee,
                 };
                 const accessToken = generateAccessToken(tokenContent);
                 const refreshToken = jwt.sign(
@@ -54,14 +61,14 @@ const login = async (req, res, next) => {
                   token: refreshToken,
                 };
                 const user = new User(userData);
-                user.updateUserToken(data[0].idUser, (err) => {
+                user.updateUserToken(committeeData.idUser, (err) => {
                   if (err) {
                     return res.status(400).json({ error: err.message });
                   }
                   return res.status(200).json({
                     accessToken: accessToken,
                     refreshToken: refreshToken,
-                    name: data[0].userName,
+                    name: committeeData.userName,
                     role: 2,
                   });
                 });
@@ -139,17 +146,24 @@ const loginToEvent = (req, res, next) => {
         return res.status(401).json({ error: "Invalid Email." });
       } else {
         try {
-          let validate = await bcrypt.compare(
-            loginData.userPassword,
-            data[0].userPassword
-          );
+          let guestData = null;
+          for (let i = 0; i < data.length; i++) {
+            let validate = await bcrypt.compare(
+              loginData.userPassword,
+              data[i].userPassword
+            );
+            if (validate) {
+              guestData = data[i];
+              break;
+            }
+          }
           if (validate) {
             let tokenContent = {
-              idUser: data[0].idUser,
+              idUser: guestData.idUser,
               email: loginData.userEmail,
               role: 3,
-              idRole: data[0].idGuest,
-              name: data[0].userName,
+              idRole: guestData.idGuest,
+              name: guestData.userName,
               idEvent: idEvent,
             };
             const accessToken = generateAccessToken(tokenContent);
@@ -161,7 +175,7 @@ const loginToEvent = (req, res, next) => {
               token: refreshToken,
             };
             const user = new User(userData);
-            user.updateUserToken(data[0].idUser, (err) => {
+            user.updateUserToken(guestData.idUser, (err) => {
               if (err) {
                 return res.status(400).json({ error: err.message });
               }
