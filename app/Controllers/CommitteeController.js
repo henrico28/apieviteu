@@ -8,7 +8,6 @@ var mailgun = require("mailgun-js")({
   apiKey: process.env.MAILGUN_API_KEY,
   domain: domain,
 });
-var MailComposer = require("nodemailer/lib/mail-composer");
 
 const getCommittee = (req, res, next) => {
   if (req.user.role != 1) {
@@ -360,34 +359,22 @@ const activateCommittee = async (req, res, next) => {
             text: "Committee Account Activation",
             html: emailContent,
           };
-          const mail = new MailComposer(mailOptions);
-          mail.compile().build((err, message) => {
-            if (err) {
+          mailgun.messages().send(mailOptions, (error, body) => {
+            if (error) {
               return res.status(400).json({
-                error: err.message,
+                error: error,
               });
             }
-            const dataToSend = {
-              to: data[0].userEmail,
-              message: message.toString("ascii"),
-            };
-            mailgun.messages().sendMime(dataToSend, (sendError, body) => {
-              if (sendError) {
+            Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
+              if (err) {
                 return res.status(400).json({
-                  error: sendError,
+                  error: err.message,
                 });
               }
-              Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
-                if (err) {
-                  return res.status(400).json({
-                    error: err.message,
-                  });
-                }
-                return res.status(200).json({
-                  message: `Committee ${data[0].userName} has been activated.`,
-                  result,
-                  body,
-                });
+              return res.status(200).json({
+                message: `Committee ${data[0].userName} has been activated.`,
+                result,
+                body,
               });
             });
           });
@@ -464,37 +451,25 @@ const activateAllCommittee = async (req, res, next) => {
                 text: "Committee Account Activation",
                 html: emailContent,
               };
-              const mail = new MailComposer(mailOptions);
-              mail.compile().build((err, message) => {
-                if (err) {
+              mailgun.messages().send(mailOptions, (error, body) => {
+                if (error) {
                   return res.status(400).json({
-                    error: err.message,
+                    error: error,
                   });
                 }
-                const dataToSend = {
-                  to: committee.userEmail,
-                  message: message.toString("ascii"),
-                };
-                mailgun.messages().sendMime(dataToSend, (sendError, body) => {
-                  if (sendError) {
-                    return res.status(400).json({
-                      error: sendError,
-                    });
-                  }
-                  if (idx === array.length - 1) {
-                    Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
-                      if (err) {
-                        return res.status(400).json({
-                          error: err.message,
-                        });
-                      }
-                      return res.status(200).json({
-                        message: "All committee has been activated",
-                        result,
+                if (idx === array.length - 1) {
+                  Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
+                    if (err) {
+                      return res.status(400).json({
+                        error: err.message,
                       });
+                    }
+                    return res.status(200).json({
+                      message: "All committee has been activated",
+                      result,
                     });
-                  }
-                });
+                  });
+                }
               });
             });
           });
