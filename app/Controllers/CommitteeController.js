@@ -465,7 +465,7 @@ const activateAllCommittee = async (req, res, next) => {
                       });
                     }
                     return res.status(200).json({
-                      message: "All committee has been activated",
+                      message: "All committee has been activated.",
                       result,
                     });
                   });

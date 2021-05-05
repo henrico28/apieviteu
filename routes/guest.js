@@ -21,5 +21,6 @@ router.put("/update", auth.authenticateToken, useController.updateGuest); // Upd
 router.put("/rsvp", auth.authenticateToken, useController.updateGuestRSVP); // Update Guest RSVP
 router.put("/attend", auth.authenticateToken, useController.updateGuestAttend); // Update Guest Attend'
 router.put("/invite", auth.authenticateToken, useController.inviteGuest); // Invite Guest
+router.put("/inviteAll", auth.authenticateToken, useController.inviteAllGuest); // Invite All Guest
 
 module.exports = router;
