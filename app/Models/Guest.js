@@ -52,6 +52,10 @@ class Guest {
     );
   }
 
+  static getGuestByIdUser(idUser, callback) {
+    db.query(`SELECT * FROM eviteu_guest WHERE idUser = ${idUser}`, callback);
+  }
+
   static getGuestByIdGuestIdHost(idGuest, idHost, callback) {
     db.query(
       `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, eviteu_event.idEvent, eviteu_event.max FROM eviteu_event INNER JOIN eviteu_guest ON eviteu_event.idEvent = eviteu_guest.idEvent INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idHost = ${idHost} AND idGuest = ${idGuest}`,
@@ -74,13 +78,6 @@ class Guest {
   ) {
     db.query(
       `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}' AND idEvent = ${idEvent} AND idGuest != ${idGuest}`,
-      callback
-    );
-  }
-
-  static getGuestByIdEventEmail(idEvent, userEmail, callback) {
-    db.query(
-      `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idGuest, qty, status, invited, attend, idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE idEvent = ${idEvent} AND userEmail = '${userEmail}'`,
       callback
     );
   }

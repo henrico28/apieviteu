@@ -27,6 +27,10 @@ class Host {
     );
   }
 
+  static getHostByIdUser(idUser, callback) {
+    db.query(`SELECT * FROM eviteu_host WHERE idUser = ${idUser}`, callback);
+  }
+
   static getHostByUserEmail(userEmail, callback) {
     db.query(
       `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idHost, phoneNumber, token FROM eviteu_host INNER JOIN eviteu_user ON eviteu_host.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}'`,

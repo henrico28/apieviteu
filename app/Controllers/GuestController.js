@@ -353,6 +353,7 @@ const inviteGuest = async (req, res, next) => {
             email: data[0].userEmail,
             role: 3,
             idRole: data[0].idGuest,
+            idEvent: data[0].idEvent,
           };
           const verificationToken = jwt.sign(
             tokenContent,
@@ -449,6 +450,7 @@ const inviteAllGuest = async (req, res, next) => {
                   email: guest.userEmail,
                   role: 3,
                   idRole: guest.idGuest,
+                  idEvent: guest.idEvent,
                 };
                 const verificationToken = jwt.sign(
                   tokenContent,

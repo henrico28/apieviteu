@@ -10,189 +10,155 @@ const login = async (req, res, next) => {
     userEmail: req.body.userEmail,
     userPassword: req.body.userPassword,
   };
-  Host.getHostByUserEmail(loginData.userEmail, async (err, data) => {
+  User.getUserByEmail(loginData.userEmail, async (err, data) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
       });
     }
-    let verify = false;
-    if (data.length !== 0) {
-      verify = await bcrypt.compare(
-        loginData.userPassword,
-        data[0].userPassword
-      );
-    }
-    if (data.length === 0 || !verify) {
-      Committee.getCommitteeByUserEmail(
-        loginData.userEmail,
-        async (err, data) => {
-          if (err) {
-            return res.status(400).json({ error: err.message });
-          }
-          if (data.length === 0) {
-            return res.status(401).json({ error: "Invalid Email." });
-          } else {
-            try {
-              let committeeData = null;
-              for (let i = 0; i < data.length; i++) {
-                let validate = await bcrypt.compare(
-                  loginData.userPassword,
-                  data[i].userPassword
-                );
-                if (validate) {
-                  committeeData = data[i];
-                  break;
-                }
-              }
-              if (committeeData) {
-                let tokenContent = {
-                  idUser: committeeData.idUser,
-                  email: loginData.userEmail,
-                  role: 2,
-                  idRole: committeeData.idCommittee,
-                };
-                const accessToken = generateAccessToken(tokenContent);
-                const refreshToken = jwt.sign(
-                  tokenContent,
-                  process.env.REFRESH_TOKEN_SECRET
-                );
-                const userData = {
-                  token: refreshToken,
-                };
-                const user = new User(userData);
-                user.updateUserToken(committeeData.idUser, (err) => {
-                  if (err) {
-                    return res.status(400).json({ error: err.message });
-                  }
-                  return res.status(200).json({
-                    accessToken: accessToken,
-                    refreshToken: refreshToken,
-                    name: committeeData.userName,
-                    role: 2,
-                  });
-                });
-              } else {
-                return res
-                  .status(401)
-                  .json({ error: "Invalid Email or Password." });
-              }
-            } catch {
-              return res.sendStatus(500);
-            }
-          }
-        }
-      );
+    if (data.length === 0) {
+      return res.status(401).json({
+        error: "Invalid email.",
+      });
     } else {
       try {
-        let validate = await bcrypt.compare(
-          loginData.userPassword,
-          data[0].userPassword
-        );
-        if (validate) {
-          let tokenContent = {
-            idUser: data[0].idUser,
-            email: loginData.userEmail,
-            role: 1,
-            idRole: data[0].idHost,
-          };
-          const accessToken = generateAccessToken(tokenContent);
-          const refreshToken = jwt.sign(
-            tokenContent,
-            process.env.REFRESH_TOKEN_SECRET
+        let userData = null;
+        for (let i = 0; i < data.length; i++) {
+          let validate = await bcrypt.compare(
+            loginData.userPassword,
+            data[i].userPassword
           );
-          const userData = {
-            token: refreshToken,
-          };
-          const user = new User(userData);
-          user.updateUserToken(data[0].idUser, (err) => {
+          if (validate) {
+            userData = data[i];
+            break;
+          }
+        }
+        if (userData) {
+          Host.getHostByIdUser(userData.idUser, (err, result) => {
             if (err) {
-              return res.status(400).json({ error: err.message });
+              return res.status(400).json({
+                error: err.message,
+              });
             }
-            return res.status(200).json({
-              accessToken: accessToken,
-              refreshToken: refreshToken,
-              name: data[0].userName,
-              role: 1,
-            });
+            if (result.length === 0) {
+              Committee.getCommitteeByIdUser(userData.idUser, (err, result) => {
+                if (err) {
+                  return res.status(400).json({
+                    error: err.message,
+                  });
+                }
+                if (result.length === 0) {
+                  Guest.getGuestByIdUser(userData.idUser, (err, result) => {
+                    if (err) {
+                      return res.status(400).json({
+                        error: err.message,
+                      });
+                    }
+                    const tokenContent = {
+                      idUser: userData.idUser,
+                      email: userData.email,
+                      name: userData.userName,
+                      role: 3,
+                      idRole: result[0].idGuest,
+                      idEvent: result[0].idEvent,
+                    };
+                    const accessToken = generateAccessToken(tokenContent);
+                    const refreshToken = jwt.sign(
+                      tokenContent,
+                      process.env.REFRESH_TOKEN_SECRET
+                    );
+                    const tmpData = {
+                      token: refreshToken,
+                    };
+                    const user = new User(tmpData);
+                    user.updateUserToken(userData.idUser, (err) => {
+                      if (err) {
+                        return res.status(400).json({
+                          error: err.message,
+                        });
+                      }
+                      return res.status(200).json({
+                        accessToken: accessToken,
+                        refreshToken: refreshToken,
+                        name: userData.userName,
+                        role: 2,
+                      });
+                    });
+                  });
+                } else {
+                  const tokenContent = {
+                    idUser: userData.idUser,
+                    email: userData.email,
+                    name: userData.userName,
+                    role: 2,
+                    idRole: result[0].idCommittee,
+                  };
+                  const accessToken = generateAccessToken(tokenContent);
+                  const refreshToken = jwt.sign(
+                    tokenContent,
+                    process.env.REFRESH_TOKEN_SECRET
+                  );
+                  const tmpData = {
+                    token: refreshToken,
+                  };
+                  const user = new User(tmpData);
+                  user.updateUserToken(userData.idUser, (err) => {
+                    if (err) {
+                      return res.status(400).json({
+                        error: err.message,
+                      });
+                    }
+                    return res.status(200).json({
+                      accessToken: accessToken,
+                      refreshToken: refreshToken,
+                      name: userData.userName,
+                      role: 2,
+                    });
+                  });
+                }
+              });
+            } else {
+              const tokenContent = {
+                idUser: userData.idUser,
+                email: userData.email,
+                name: userData.userName,
+                role: 1,
+                idRole: result[0].idHost,
+              };
+              const accessToken = generateAccessToken(tokenContent);
+              const refreshToken = jwt.sign(
+                tokenContent,
+                process.env.REFRESH_TOKEN_SECRET
+              );
+              const tmpData = {
+                token: refreshToken,
+              };
+              const user = new User(tmpData);
+              user.updateUserToken(userData.idUser, (err) => {
+                if (err) {
+                  return res.status(400).json({
+                    error: err.message,
+                  });
+                }
+                return res.status(200).json({
+                  accessToken: accessToken,
+                  refreshToken: refreshToken,
+                  name: userData.userName,
+                  role: 1,
+                });
+              });
+            }
           });
         } else {
-          return res.status(401).json({ error: "Invalid Email or Password." });
+          return res.status(401).json({
+            error: "Invalid email or password.",
+          });
         }
       } catch {
         return res.sendStatus(500);
       }
     }
   });
-};
-
-const loginToEvent = (req, res, next) => {
-  const idEvent = req.body.idEvent;
-  const loginData = {
-    userEmail: req.body.userEmail,
-    userPassword: req.body.userPassword,
-    idEvent: req.body.idEvent,
-  };
-  Guest.getGuestByIdEventEmail(
-    idEvent,
-    loginData.userEmail,
-    async (err, data) => {
-      if (err) {
-        return res.status(400).json({
-          error: err.message,
-        });
-      }
-      if (data.length === 0) {
-        return res.status(401).json({ error: "Invalid Email." });
-      } else {
-        try {
-          let guestData = null;
-          for (let i = 0; i < data.length; i++) {
-            let validate = await bcrypt.compare(
-              loginData.userPassword,
-              data[i].userPassword
-            );
-            if (validate) {
-              guestData = data[i];
-              break;
-            }
-          }
-          if (validate) {
-            let tokenContent = {
-              idUser: guestData.idUser,
-              email: loginData.userEmail,
-              role: 3,
-              idRole: guestData.idGuest,
-              name: guestData.userName,
-              idEvent: idEvent,
-            };
-            const accessToken = generateAccessToken(tokenContent);
-            const refreshToken = jwt.sign(
-              tokenContent,
-              process.env.REFRESH_TOKEN_SECRET
-            );
-            const userData = {
-              token: refreshToken,
-            };
-            const user = new User(userData);
-            user.updateUserToken(guestData.idUser, (err) => {
-              if (err) {
-                return res.status(400).json({ error: err.message });
-              }
-              return res.status(200).json({
-                accessToken: accessToken,
-                refreshToken: refreshToken,
-              });
-            });
-          } else {
-            return res.status(401).json({ error: "Invalid Email or Password" });
-          }
-        } catch {
-          return res.sendStatus(500);
-        }
-      }
-    }
-  );
 };
 
 const authenticateToken = (req, res, next) => {
@@ -302,6 +268,7 @@ const verifyToken = (req, res, next) => {
         email: user.email,
         role: user.role,
         idRole: user.idRole,
+        idEvent: user.idEvent,
       };
       User.getUserById(userData.idUser, (err, data) => {
         if (err) {
@@ -319,6 +286,7 @@ const verifyToken = (req, res, next) => {
             email: userData.email,
             role: userData.role,
             idRole: userData.idRole,
+            idEvent: userData.idEvent,
           };
           const accessToken = generateAccessToken(tokenContent);
           const refreshToken = jwt.sign(
@@ -358,7 +326,6 @@ const generateAccessToken = (data) => {
 module.exports = {
   login,
   logout,
-  loginToEvent,
   authenticateToken,
   refreshToken,
   verifyToken,

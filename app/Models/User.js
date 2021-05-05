@@ -62,6 +62,13 @@ class User {
     db.query(`SELECT * FROM eviteu_user WHERE idUser = ${idUser}`, callback);
   }
 
+  static getUserByEmail(userEmail, callback) {
+    db.query(
+      `SELECT * FROM eviteu_user WHERE userEmail ='${userEmail}'`,
+      callback
+    );
+  }
+
   static getUserByEmailToken(userEmail, token, callback) {
     db.query(
       `SELECT * FROM eviteu_user WHERE userEmail = '${userEmail}' AND token = '${token}'`,
