@@ -81,7 +81,9 @@ const login = async (req, res, next) => {
                         accessToken: accessToken,
                         refreshToken: refreshToken,
                         name: userData.userName,
-                        role: 2,
+                        role: 3,
+                        idRole: result[0].idGuest,
+                        idEvent: result[0].idEvent,
                       });
                     });
                   });
@@ -308,6 +310,8 @@ const verifyToken = (req, res, next) => {
               refreshToken: refreshToken,
               name: data[0].userName,
               role: userData.role,
+              idRole: userData.idRole,
+              idEvent: userData.idEvent,
               email: data[0].userEmail,
             });
           });

@@ -42,7 +42,7 @@ const storage = multer.diskStorage({
         "_" +
         identifer[1] +
         "_" +
-        req.body.eventTitle.replace(" ", "") +
+        req.body.eventTitle.replace(/ /g, "") +
         path.extname(file.originalname);
       cb(null, fileName);
     } else {
@@ -60,7 +60,7 @@ const storage = multer.diskStorage({
             "_" +
             idEvent +
             "_" +
-            req.body.eventTitle.replace(" ", "") +
+            req.body.eventTitle.replace(/ /g, "") +
             path.extname(file.originalname);
           cb(null, fileName);
         }

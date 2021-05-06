@@ -84,7 +84,7 @@ class Guest {
 
   static getGuestEmailDetailById(idGuest, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, eviteu_user.userName, eviteu_user.userEmail, userHost.userEmail AS hostEmail, eviteu_host.phoneNumber AS hostPhoneNumber, eviteu_guest.idGuest, eventTitle, eventSubTitle, date, time, location, primaryColor, secondaryColor, accentColor, textColor FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser INNER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent INNER JOIN eviteu_host ON eviteu_event.idHost = eviteu_host.idHost INNER JOIN eviteu_user AS userHost ON eviteu_host.idUser = userHost.idUser WHERE idGuest = ${idGuest}`,
+      `SELECT eviteu_user.idUser, eviteu_user.userName, eviteu_user.userEmail, userHost.userEmail AS hostEmail, eviteu_host.phoneNumber AS hostPhoneNumber, eviteu_guest.idGuest, eviteu_event.idEvent, eventTitle, eventSubTitle, date, time, location, primaryColor, secondaryColor, accentColor, textColor FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser INNER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent INNER JOIN eviteu_host ON eviteu_event.idHost = eviteu_host.idHost INNER JOIN eviteu_user AS userHost ON eviteu_host.idUser = userHost.idUser WHERE idGuest = ${idGuest}`,
       callback
     );
   }
@@ -112,7 +112,7 @@ class Guest {
 
   static getAllUnivitedGuestByIdHostIdEvent(idHost, idEvent, callback) {
     db.query(
-      `SELECT eviteu_user.idUser, eviteu_user.userName, eviteu_user.userEmail, userHost.userEmail AS hostEmail, eviteu_host.phoneNumber AS hostPhoneNumber, eviteu_guest.idGuest, eventTitle, eventSubTitle, date, time, location, primaryColor, secondaryColor, accentColor, textColor FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser INNER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent INNER JOIN eviteu_host ON eviteu_event.idHost = eviteu_host.idHost INNER JOIN eviteu_user AS userHost ON eviteu_host.idUser = userHost.idUser WHERE eviteu_event.idHost = ${idHost} AND eviteu_event.idEvent = ${idEvent} AND eviteu_guest.invited = 0`,
+      `SELECT eviteu_user.idUser, eviteu_user.userName, eviteu_user.userEmail, userHost.userEmail AS hostEmail, eviteu_host.phoneNumber AS hostPhoneNumber, eviteu_guest.idGuest, eviteu_event.idEvent, eventTitle, eventSubTitle, date, time, location, primaryColor, secondaryColor, accentColor, textColor FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser INNER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent INNER JOIN eviteu_host ON eviteu_event.idHost = eviteu_host.idHost INNER JOIN eviteu_user AS userHost ON eviteu_host.idUser = userHost.idUser WHERE eviteu_event.idHost = ${idHost} AND eviteu_event.idEvent = ${idEvent} AND eviteu_guest.invited = 0`,
       callback
     );
   }
