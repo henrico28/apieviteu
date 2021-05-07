@@ -44,7 +44,7 @@ class Event {
 
   static getEventByIdEventIdHost(idEvent, idHost, callback) {
     db.query(
-      `SELECT * FROM eviteu_event WHERE idEvent = ${idEvent} AND idHost = ${idHost}`,
+      `SELECT idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, primaryColor, secondaryColor, accentColor, textColor, max, eviteu_host.idHost, idType, eviteu_user.idUser, userName, userEmail, eviteu_host.idHost, phoneNumber  FROM eviteu_event INNER JOIN eviteu_host ON eviteu_event.idHost = eviteu_host.idHost INNER JOIN eviteu_user ON eviteu_host.idUser = eviteu_user.idUser WHERE idEvent = ${idEvent} AND eviteu_host.idHost = ${idHost}`,
       callback
     );
   }
