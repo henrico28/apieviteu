@@ -14,6 +14,11 @@ router.get(
   useController.getAnnouncement
 ); // Get Announcement
 router.get(
+  "/published/:id",
+  auth.authenticateToken,
+  useController.getPublishedAnnouncement
+); // Get Published Announcement
+router.get(
   "/lists/:id",
   auth.authenticateToken,
   useController.getAllAnnouncement

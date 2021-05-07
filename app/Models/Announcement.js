@@ -47,6 +47,18 @@ class Announcement {
     );
   }
 
+  static getAnnouncementByIdAnnouncementIdEventIdGuest(
+    idAnnouncement,
+    idEvent,
+    idGuest,
+    callback
+  ) {
+    db.query(
+      `SELECT idAnnouncement, announcementTitle, announcementDescription, primaryColor, secondaryColor, accentColor, textColor, userEmail, phoneNumber FROM eviteu_announcement INNER JOIN eviteu_event ON eviteu_announcement.idEvent = eviteu_event.idEvent INNER JOIN eviteu_guest ON eviteu_event.idEvent = eviteu_guest.idEvent INNER JOIN eviteu_host ON eviteu_event.idHost = eviteu_host.idHost INNER JOIN eviteu_user ON eviteu_host.idUser = eviteu_user.idUser WHERE idAnnouncement = ${idAnnouncement} AND eviteu_event.idEvent = ${idEvent} AND idGuest = ${idGuest} AND announcementStatus = 1`,
+      callback
+    );
+  }
+
   static getAllAnnouncementByIdEvent(idEvent, callback) {
     db.query(
       `SELECT * FROM eviteu_announcement WHERE idEvent = ${idEvent}`,

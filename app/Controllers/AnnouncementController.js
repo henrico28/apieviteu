@@ -42,6 +42,30 @@ const getAllAnnouncement = (req, res, next) => {
   );
 };
 
+const getPublishedAnnouncement = (req, res, next) => {
+  if (req.user.role != 3) {
+    return res.sendStatus(401);
+  }
+  const idAnnouncement = req.params.id;
+  const idEvent = req.user.idEvent;
+  const idGuest = req.user.idRole;
+  Announcement.getAnnouncementByIdAnnouncementIdEventIdGuest(
+    idAnnouncement,
+    idEvent,
+    idGuest,
+    (err, result) => {
+      if (err) {
+        return res.status(400).json({
+          message: err.message,
+        });
+      }
+      return res.status(200).json({
+        result,
+      });
+    }
+  );
+};
+
 const getAllPublishedAnnouncement = (req, res, next) => {
   if (req.user.role != 3) {
     return res.sendStatus(401);
@@ -199,6 +223,7 @@ const updateAnnoucementStatus = (req, res, next) => {
 
 module.exports = {
   getAnnouncement,
+  getPublishedAnnouncement,
   getAllAnnouncement,
   getAllPublishedAnnouncement,
   createAnnouncement,
