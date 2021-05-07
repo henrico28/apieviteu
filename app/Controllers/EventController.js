@@ -23,7 +23,8 @@ const getEventForGuest = (req, res, next) => {
     return res.sendStatus(401);
   }
   const idEvent = req.user.idEvent;
-  Event.getEventById(idEvent, (err, result) => {
+  const idRole = req.user.idRole;
+  Event.getEventDetailByIdEventIdGuest(idEvent, idRole, (err, result) => {
     if (err) {
       return res.status(400).json({
         error: err.message,

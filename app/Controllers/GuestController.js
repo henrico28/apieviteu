@@ -245,7 +245,7 @@ const updateGuestRSVP = (req, res, next) => {
   if (req.user.role != 3) {
     return res.sendStatus(401);
   }
-  const idGuest = req.body.idGuest;
+  const idGuest = req.user.idRole;
   const guestData = {
     qty: req.body.qty,
     status: req.body.status,
@@ -257,18 +257,8 @@ const updateGuestRSVP = (req, res, next) => {
         error: err.message,
       });
     }
-    Guest.getGuestById(idGuest, (err, data) => {
-      if (err) {
-        return res.status(400).json({
-          error: err.message,
-        });
-      }
-      return res.status(200).json({
-        data: {
-          qty: data[0].qty,
-          status: data[0].status,
-        },
-      });
+    return res.status(200).json({
+      message: "You have successfully rsvpe'd.",
     });
   });
 };
@@ -353,7 +343,7 @@ const inviteGuest = async (req, res, next) => {
             email: data[0].userEmail,
             role: 3,
             idRole: data[0].idGuest,
-            idEvent: data[0].idEvent,
+            idEvent: idEvent,
           };
           const verificationToken = jwt.sign(
             tokenContent,
@@ -450,7 +440,7 @@ const inviteAllGuest = async (req, res, next) => {
                   email: guest.userEmail,
                   role: 3,
                   idRole: guest.idGuest,
-                  idEvent: guest.idEvent,
+                  idEvent: idEvent,
                 };
                 const verificationToken = jwt.sign(
                   tokenContent,

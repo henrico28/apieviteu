@@ -49,6 +49,13 @@ class Event {
     );
   }
 
+  static getEventDetailByIdEventIdGuest(idEvent, idGuest, callback) {
+    db.query(
+      `SELECT eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, primaryColor, secondaryColor, accentColor, textColor, max, userEmail, phoneNumber, eviteu_guest.idUser, idGuest, status FROM eviteu_event INNER JOIN eviteu_guest ON eviteu_event.idEvent = eviteu_guest.idEvent INNER JOIN eviteu_host ON eviteu_event.idHost = eviteu_host.idHost INNER JOIN eviteu_user ON eviteu_host.idUser = eviteu_user.idUser WHERE eviteu_event.idEvent = ${idEvent} AND eviteu_guest.idGuest = ${idGuest}`,
+      callback
+    );
+  }
+
   static getAllEventByIdHost(idHost, callback) {
     db.query(
       `SELECT eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, primaryColor, secondaryColor, accentColor, textColor, max, idHost, typeName, COUNT(idGuest) AS totalGuestInvited,SUM(status) AS totalGuestRsvp,SUM(qty) AS totalGuestBrought, SUM(attend) AS totalGuestAttended FROM eviteu_guest RIGHT OUTER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent INNER JOIN eviteu_type ON eviteu_event.idType = eviteu_type.idType WHERE idHost = ${idHost} GROUP BY idEvent`,
