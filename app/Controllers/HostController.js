@@ -63,13 +63,7 @@ const createHost = async (req, res, next) => {
               }
 
               return res.status(201).json({
-                data: {
-                  idUser: data[0].idUser,
-                  userName: data[0].userName,
-                  userEmail: data[0].userEmail,
-                  idHost: data[0].idHost,
-                  phoneNumber: data[0].phoneNumber,
-                },
+                message: `Account ${data[0].userName} has been successfully created.`,
               });
             });
           });
