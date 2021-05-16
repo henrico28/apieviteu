@@ -139,7 +139,9 @@ class Email {
                     </div>
                     <div class="email-body">
                       <div>
-                        <label>Hi, <span style="font-weight: bold;">Henrico</span></label>
+                        <label>Hi, <span style="font-weight: bold;">${
+                          this.detail.userName
+                        }</span></label>
                       </div>
                       <div style="width: auto">
                         <p style="word-wrap: break-word;">

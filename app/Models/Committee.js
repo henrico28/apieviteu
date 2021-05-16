@@ -82,9 +82,9 @@ class Committee {
     );
   }
 
-  static getAllAssignedEventById(idCommittee, callback) {
+  static getAllAssignedEventByIdHostId(idHost, idCommittee, callback) {
     db.query(
-      `SELECT eviteu_event.idEvent, eventTitle, CASE WHEN assignedEvent.idCommittee IS NULL THEN 0 ELSE 1 END AS status FROM (SELECT * FROM eviteu_manage WHERE idCommittee = ${idCommittee}) as assignedEvent RIGHT OUTER JOIN eviteu_event ON assignedEvent.idEvent = eviteu_event.idEvent`,
+      `SELECT eviteu_event.idEvent, eventTitle, CASE WHEN assignedEvent.idCommittee IS NULL THEN 0 ELSE 1 END AS status FROM (SELECT * FROM eviteu_manage WHERE idCommittee = ${idCommittee}) as assignedEvent RIGHT OUTER JOIN eviteu_event ON assignedEvent.idEvent = eviteu_event.idEvent WHERE idHost = ${idHost}`,
       callback
     );
   }

@@ -77,9 +77,9 @@ class Event {
     );
   }
 
-  static getAllCommitteeAssignedById(idEvent, callback) {
+  static getAllCommitteeAssignedByIdHostId(idHost, idEvent, callback) {
     db.query(
-      `SELECT eviteu_committee.idCommittee, userName, CASE WHEN assignedCommittee.idEvent IS NULL THEN 0 ELSE 1 END AS status FROM (SELECT * FROM eviteu_manage WHERE idEvent = ${idEvent}) AS assignedCommittee RIGHT OUTER JOIN eviteu_committee ON assignedCommittee.idCommittee = eviteu_committee.idCommittee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser`,
+      `SELECT eviteu_committee.idCommittee, userName, CASE WHEN assignedCommittee.idEvent IS NULL THEN 0 ELSE 1 END AS status FROM (SELECT * FROM eviteu_manage WHERE idEvent = ${idEvent}) AS assignedCommittee RIGHT OUTER JOIN eviteu_committee ON assignedCommittee.idCommittee = eviteu_committee.idCommittee INNER JOIN eviteu_user ON eviteu_committee.idUser = eviteu_user.idUser WHERE idHost = ${idHost}`,
       callback
     );
   }

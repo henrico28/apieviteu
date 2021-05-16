@@ -66,6 +66,7 @@ const getAllAssignedEvent = (req, res, next) => {
     return res.sendStatus(401);
   }
   const idCommittee = req.params.id;
+  const idHost = req.user.idRole;
   Committee.getCommitteeById(idCommittee, (err, data) => {
     if (err) {
       return res.status(400).json({
@@ -77,14 +78,18 @@ const getAllAssignedEvent = (req, res, next) => {
         error: "No committee found",
       });
     } else {
-      Committee.getAllAssignedEventById(idCommittee, (err, result) => {
-        if (err) {
-          return res.status(400).json({
-            error: err.message,
-          });
+      Committee.getAllAssignedEventByIdHostId(
+        idHost,
+        idCommittee,
+        (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({ result });
         }
-        return res.status(200).json({ result });
-      });
+      );
     }
   });
 };

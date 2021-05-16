@@ -69,6 +69,7 @@ const getAllAssignedCommittee = (req, res, next) => {
     return res.sendStatus(401);
   }
   const idEvent = req.params.id;
+  const idHost = req.user.idRole;
   Event.getEventById(idEvent, (err, data) => {
     if (err) {
       return res.status(400).json({
@@ -80,14 +81,18 @@ const getAllAssignedCommittee = (req, res, next) => {
         error: "No event found",
       });
     } else {
-      Event.getAllCommitteeAssignedById(idEvent, (err, result) => {
-        if (err) {
-          return res.status(400).json({
-            error: err.message,
-          });
+      Event.getAllCommitteeAssignedByIdHostId(
+        idHost,
+        idEvent,
+        (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({ result });
         }
-        return res.status(200).json({ result });
-      });
+      );
     }
   });
 };
