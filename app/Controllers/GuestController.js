@@ -42,12 +42,11 @@ const getAllGuest = (req, res, next) => {
 };
 
 const getAllAttendedGuest = (req, res, next) => {
-  if (req.user.role != 1) {
+  if (req.user.role != 1 && req.user.role != 2) {
     return res.sendStatus(401);
   }
   const idEvent = req.params.id;
-  const idHost = req.user.idRole;
-  Guest.getAllAttendedGuestByIdHostIdEvent(idHost, idEvent, (err, result) => {
+  Guest.getAllAttendedGuestByIdEvent(idEvent, (err, result) => {
     if (err) {
       return res.status(400).json({
         error: err.message,

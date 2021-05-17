@@ -97,21 +97,6 @@ const getAllAssignedCommittee = (req, res, next) => {
   });
 };
 
-const getAllWeddingEvent = (req, res, next) => {
-  if (req.user.role != 1) {
-    return res.sendStatus(401);
-  }
-  const idHost = req.user.idRole;
-  Event.getAllEventByIdHostIdType(idHost, 1, (err, result) => {
-    if (err) {
-      return res.status(400).json({
-        error: err.message,
-      });
-    }
-    return res.status(200).json({ result });
-  });
-};
-
 const createEvent = (req, res, next) => {
   if (req.user.role != 1) {
     return res.sendStatus(401);
@@ -281,6 +266,7 @@ const assignCommittee = (req, res, next) => {
   }
   const idEvent = req.body.idEvent;
   const listOfIdCommittee = req.body.listOfCommittee;
+  const idHost = req.user.idRole;
   Event.deleteCommitteeAssignedById(idEvent, (err) => {
     if (err) {
       return res(400).json({
@@ -300,17 +286,21 @@ const assignCommittee = (req, res, next) => {
               error: err.message,
             });
           }
-          Event.getAllCommitteeAssignedById(idEvent, (err, result) => {
-            if (err) {
-              return res.status(400).json({
-                error: err.message,
+          Event.getAllCommitteeAssignedByIdHostId(
+            idHost,
+            idEvent,
+            (err, result) => {
+              if (err) {
+                return res.status(400).json({
+                  error: err.message,
+                });
+              }
+              return res.status(200).json({
+                message: `Event ${data[0].eventTitle} has been assigned committees.`,
+                result,
               });
             }
-            return res.status(200).json({
-              message: `Event ${data[0].eventTitle} has been assigned committees.`,
-              result,
-            });
-          });
+          );
         });
       });
     } else {
@@ -320,17 +310,21 @@ const assignCommittee = (req, res, next) => {
             error: err.message,
           });
         }
-        Event.getAllCommitteeAssignedById(idEvent, (err, result) => {
-          if (err) {
-            return res.status(400).json({
-              error: err.message,
+        Event.getAllCommitteeAssignedByIdHostId(
+          idHost,
+          idEvent,
+          (err, result) => {
+            if (err) {
+              return res.status(400).json({
+                error: err.message,
+              });
+            }
+            return res.status(200).json({
+              message: `Event ${data[0].eventTitle} has been assigned committee.`,
+              result,
             });
           }
-          return res.status(200).json({
-            message: `Event ${data[0].eventTitle} has been assigned committee.`,
-            result,
-          });
-        });
+        );
       });
     }
   });
@@ -342,7 +336,6 @@ module.exports = {
   getAllEvent,
   getAllEventForCommittee,
   getAllAssignedCommittee,
-  getAllWeddingEvent,
   createEvent,
   deleteEvent,
   updateEvent,

@@ -91,11 +91,6 @@ router.get(
   useController.getAllEventForCommittee
 ); // Get All Event Manage By Committee
 router.get(
-  "/wedding",
-  auth.authenticateToken,
-  useController.getAllWeddingEvent
-); // Get All Wedding Events
-router.get(
   "/assigned/:id",
   auth.authenticateToken,
   useController.getAllAssignedCommittee

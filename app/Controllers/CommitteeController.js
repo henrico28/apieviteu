@@ -263,6 +263,7 @@ const assignEvent = (req, res, next) => {
   }
   const idCommittee = req.body.idCommittee;
   const listOfIdEvent = req.body.listOfEvent;
+  const idHost = req.user.idRole;
   Committee.deleteEventAssignedById(idCommittee, (err) => {
     if (err) {
       return res.status(400).json({
@@ -282,7 +283,34 @@ const assignEvent = (req, res, next) => {
               error: err.message,
             });
           }
-          Committee.getAllAssignedEventById(idCommittee, (err, result) => {
+          Committee.getAllAssignedEventByIdHostId(
+            idHost,
+            idCommittee,
+            (err, result) => {
+              if (err) {
+                return res.status(400).json({
+                  error: err.message,
+                });
+              }
+              return res.status(200).json({
+                message: `Committee ${data[0].userName} has been assigned events.`,
+                result,
+              });
+            }
+          );
+        });
+      });
+    } else {
+      Committee.getCommitteeById(idCommittee, (err, data) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        Committee.getAllAssignedEventByIdHostId(
+          idHost,
+          idCommittee,
+          (err, result) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
@@ -292,8 +320,8 @@ const assignEvent = (req, res, next) => {
               message: `Committee ${data[0].userName} has been assigned events.`,
               result,
             });
-          });
-        });
+          }
+        );
       });
     }
   });
