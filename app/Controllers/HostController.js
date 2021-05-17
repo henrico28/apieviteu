@@ -24,7 +24,6 @@ const createHost = async (req, res, next) => {
       userEmail: req.body.userEmail,
       userPassword: hashedPassword,
     };
-    const user = new User(userData);
     Host.getHostByUserEmail(userData.userEmail, (err, data) => {
       if (err) {
         return res.status(400).json({
@@ -38,7 +37,7 @@ const createHost = async (req, res, next) => {
           });
         }
       } else {
-        user.addUser((err, result) => {
+        User.addUser(userData, (err, result) => {
           if (err) {
             return res.status(400).json({
               error: err.message,
@@ -48,8 +47,7 @@ const createHost = async (req, res, next) => {
             phoneNumber: req.body.phoneNumber,
             idUser: result.insertId,
           };
-          const host = new Host(hostData);
-          host.addHost((err, result) => {
+          Host.addHost(hostData, (err, result) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,

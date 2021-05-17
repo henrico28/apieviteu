@@ -80,7 +80,6 @@ const createGuest = async (req, res, next) => {
     userName: req.body.userName,
     userEmail: req.body.userEmail,
   };
-  const user = new User(userData);
   Guest.getGuestByUserEmailIdEvent(userData.userEmail, idEvent, (err, data) => {
     if (err) {
       return res.status(400).json({
@@ -94,7 +93,7 @@ const createGuest = async (req, res, next) => {
         });
       }
     } else {
-      user.addUserNoPassword((err, result) => {
+      User.addUserNoPassword(userData, (err, result) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
@@ -108,8 +107,7 @@ const createGuest = async (req, res, next) => {
           idUser: result.insertId,
           idEvent: req.body.idEvent,
         };
-        const guest = new Guest(guestData);
-        guest.addGuest((err, result) => {
+        Guest.addGuest(guestData, (err, result) => {
           if (err) {
             return res.status(400).json({
               error: err.message,
@@ -177,7 +175,6 @@ const updateGuest = async (req, res, next) => {
     userName: req.body.userName,
     userEmail: req.body.userEmail,
   };
-  const user = new User(userData);
   Guest.getGuestByUserEmailIdEventNotId(
     userData.userEmail,
     idEvent,
@@ -195,7 +192,7 @@ const updateGuest = async (req, res, next) => {
           });
         }
       } else {
-        user.updateUserNameEmail(idUser, (err) => {
+        User.updateUserNameEmail(userData, idUser, (err) => {
           if (err) {
             return res.status(400).json({
               error: err.message,
@@ -207,8 +204,7 @@ const updateGuest = async (req, res, next) => {
             invited: 0,
             attend: req.body.attend,
           };
-          const guest = new Guest(guestData);
-          guest.updateGuest(idGuest, (err) => {
+          Guest.updateGuest(guestData, idGuest, (err) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
@@ -249,8 +245,7 @@ const updateGuestRSVP = (req, res, next) => {
     qty: req.body.qty,
     status: req.body.status,
   };
-  const guest = new Guest(guestData);
-  guest.updateGuestRSVP(idGuest, (err) => {
+  Guest.updateGuestRSVP(guestData, idGuest, (err) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -271,8 +266,7 @@ const updateGuestAttend = (req, res, next) => {
   const guestData = {
     attend: req.body.attend,
   };
-  const guest = new Guest(guestData);
-  guest.updateGuestAttend(idGuest, (err) => {
+  Guest.updateGuestAttend(guestData, idGuest, (err) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -314,8 +308,7 @@ const inviteGuest = async (req, res, next) => {
     const userData = {
       userPassword: hashedPassword,
     };
-    const user = new User(userData);
-    user.updateUserPassword(idUser, (err) => {
+    User.updateUserPassword(userData, idUser, (err) => {
       if (err) {
         return res.status(400).json({
           error: err.message,
@@ -324,8 +317,7 @@ const inviteGuest = async (req, res, next) => {
       const guestData = {
         invited: 1,
       };
-      const guest = new Guest(guestData);
-      guest.updateGuestInvited(idGuest, (err) => {
+      Guest.updateGuestInvited(guestData, idGuest, (err) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
@@ -357,8 +349,7 @@ const inviteGuest = async (req, res, next) => {
             detail: data[0],
             credentials: credentials,
           };
-          const email = new Email(emailData);
-          const emailContent = email.generateGuestEmail();
+          const emailContent = Email.generateGuestEmail(emailData);
           const mailOptions = {
             from: data[0].hostEmail,
             to: data[0].userEmail,
@@ -417,8 +408,7 @@ const inviteAllGuest = async (req, res, next) => {
             const userData = {
               userPassword: hashedPassword,
             };
-            const user = new User(userData);
-            user.updateUserPassword(guest.idUser, (err) => {
+            User.updateUserPassword(userData, guest.idUser, (err) => {
               if (err) {
                 return res.status(400).json({
                   error: err.message,
@@ -427,8 +417,7 @@ const inviteAllGuest = async (req, res, next) => {
               const guestData = {
                 invited: 1,
               };
-              const tmpGuest = new Guest(guestData);
-              tmpGuest.updateGuestInvited(guest.idGuest, (err) => {
+              Guest.updateGuestInvited(guestData, guest.idGuest, (err) => {
                 if (err) {
                   return res.status(400).json({
                     error: err.message,
@@ -454,8 +443,7 @@ const inviteAllGuest = async (req, res, next) => {
                   detail: data[0],
                   credentials: credentials,
                 };
-                const email = new Email(emailData);
-                const emailContent = email.generateGuestEmail();
+                const emailContent = Email.generateGuestEmail(emailData);
                 const mailOptions = {
                   from: guest.hostEmail,
                   to: guest.userEmail,

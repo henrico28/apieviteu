@@ -1,91 +1,91 @@
 const db = require("../../database");
 
-class User {
-  constructor(data) {
-    this.userName = data.userName;
-    this.userEmail = data.userEmail;
-    this.userPassword = data.userPassword;
-    this.token = data.token;
-  }
+const addUser = (data, callback) => {
+  db.query(
+    `INSERT INTO eviteu_user(userName, userEmail, userPassword) VALUES('${data.userName}', '${data.userEmail}', '${data.userPassword}')`,
+    callback
+  );
+};
 
-  addUser(callback) {
-    db.query(
-      `INSERT INTO eviteu_user(userName, userEmail, userPassword) VALUES('${this.userName}', '${this.userEmail}', '${this.userPassword}')`,
-      callback
-    );
-  }
+const addUserNoPassword = (data, callback) => {
+  db.query(
+    `INSERT INTO eviteu_user(userName, userEmail) VALUES('${data.userName}', '${data.userEmail}')`,
+    callback
+  );
+};
 
-  addUserNoPassword(callback) {
-    db.query(
-      `INSERT INTO eviteu_user(userName, userEmail) VALUES('${this.userName}', '${this.userEmail}')`,
-      callback
-    );
-  }
+const updateUser = (data, idUser, callback) => {
+  db.query(
+    `UPDATE eviteu_user SET userName = '${data.userName}', userEmail = '${data.userEmail}', userPassword = '${data.userPassword}' WHERE idUser = ${idUser}`,
+    callback
+  );
+};
 
-  updateUser(idUser, callback) {
-    db.query(
-      `UPDATE eviteu_user SET userName = '${this.userName}', userEmail = '${this.userEmail}', userPassword = '${this.userPassword}' WHERE idUser = ${idUser}`,
-      callback
-    );
-  }
+const updateUsernameEmail = (data, idUser, callback) => {
+  db.query(
+    `UPDATE eviteu_user SET userName = '${data.userName}', userEmail = '${data.userEmail}' WHERE idUser = ${idUser}`,
+    callback
+  );
+};
 
-  updateUserNameEmail(idUser, callback) {
-    db.query(
-      `UPDATE eviteu_user SET userName = '${this.userName}', userEmail = '${this.userEmail}' WHERE idUser = ${idUser}`,
-      callback
-    );
-  }
+const updateUserPassword = (data, idUser, callback) => {
+  db.query(
+    `UPDATE eviteu_user SET userPassword = '${data.userPassword}' WHERE idUser = ${idUser}`,
+    callback
+  );
+};
 
-  updateUserPassword(idUser, callback) {
-    db.query(
-      `UPDATE eviteu_user SET userPassword = '${this.userPassword}' WHERE idUser = ${idUser}`,
-      callback
-    );
-  }
+const updateUserToken = (data, idUser, callback) => {
+  db.query(
+    `UPDATE eviteu_user SET token = '${data.token}' WHERE idUser = ${idUser}`,
+    callback
+  );
+};
 
-  updateUserToken(idUser, callback) {
-    db.query(
-      `UPDATE eviteu_user SET token = '${this.token}' WHERE idUser = ${idUser}`,
-      callback
-    );
-  }
+const getAllUsers = (callback) => {
+  db.query(`SELECT * FROM eviteu_user`, callback);
+};
 
-  static getAllUsers() {
-    return `SELECT * FROM eviteu_user`;
-  }
+const getUserById = (idUser, callback) => {
+  db.query(`SELECT * FROM eviteu_user WHERE idUser = ${idUser}`, callback);
+};
 
-  static getAllUsers2(callback) {
-    db.query(`SELECT * FROM eviteu_user`, callback);
-  }
+const getUserByEmail = (userEmail, callback) => {
+  db.query(
+    `SELECT * FROM eviteu_user WHERE userEmail ='${userEmail}'`,
+    callback
+  );
+};
 
-  static getUserById(idUser, callback) {
-    db.query(`SELECT * FROM eviteu_user WHERE idUser = ${idUser}`, callback);
-  }
+const getUserByEmailToken = (userEmail, token, callback) => {
+  db.query(
+    `SELECT * FROM eviteu_user WHERE userEmail = '${userEmail}' AND token = '${token}'`,
+    callback
+  );
+};
 
-  static getUserByEmail(userEmail, callback) {
-    db.query(
-      `SELECT * FROM eviteu_user WHERE userEmail ='${userEmail}'`,
-      callback
-    );
-  }
+const deleteUserByIdUser = (idUser, callback) => {
+  db.query(`DELETE FROM eviteu_user WHERE idUser = ${idUser}`, callback);
+};
 
-  static getUserByEmailToken(userEmail, token, callback) {
-    db.query(
-      `SELECT * FROM eviteu_user WHERE userEmail = '${userEmail}' AND token = '${token}'`,
-      callback
-    );
-  }
+const deleteUserGuestByIdEvent = (idEvent, callback) => {
+  db.query(
+    `DELETE FROM eviteu_user WHERE idUser IN (SELECT idUser FROM eviteu_guest WHERE idEvent = ${idEvent})`,
+    callback
+  );
+};
 
-  static deleteUserByIdUser(idUser, callback) {
-    db.query(`DELETE FROM eviteu_user WHERE idUser = ${idUser}`, callback);
-  }
-
-  static deleteUserGuestByIdEvent(idEvent, callback) {
-    db.query(
-      `DELETE FROM eviteu_user WHERE idUser IN (SELECT idUser FROM eviteu_guest WHERE idEvent = ${idEvent})`,
-      callback
-    );
-  }
-}
-
-module.exports = User;
+module.exports = {
+  addUser,
+  addUserNoPassword,
+  updateUser,
+  updateUsernameEmail,
+  updateUserPassword,
+  updateUserToken,
+  getAllUsers,
+  getUserById,
+  getUserByEmail,
+  getUserByEmailToken,
+  deleteUserByIdUser,
+  deleteUserGuestByIdEvent,
+};

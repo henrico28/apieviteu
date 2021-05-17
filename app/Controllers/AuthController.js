@@ -70,8 +70,7 @@ const login = async (req, res, next) => {
                     const tmpData = {
                       token: refreshToken,
                     };
-                    const user = new User(tmpData);
-                    user.updateUserToken(userData.idUser, (err) => {
+                    User.updateUserToken(tmpData, userData.idUser, (err) => {
                       if (err) {
                         return res.status(400).json({
                           error: err.message,
@@ -101,8 +100,7 @@ const login = async (req, res, next) => {
                   const tmpData = {
                     token: refreshToken,
                   };
-                  const user = new User(tmpData);
-                  user.updateUserToken(userData.idUser, (err) => {
+                  User.updateUserToken(tmpData, userData.idUser, (err) => {
                     if (err) {
                       return res.status(400).json({
                         error: err.message,
@@ -133,8 +131,7 @@ const login = async (req, res, next) => {
               const tmpData = {
                 token: refreshToken,
               };
-              const user = new User(tmpData);
-              user.updateUserToken(userData.idUser, (err) => {
+              User.updateUserToken(tmpData, userData.idUser, (err) => {
                 if (err) {
                   return res.status(400).json({
                     error: err.message,
@@ -237,8 +234,7 @@ const logout = (req, res, next) => {
       const userData = {
         token: null,
       };
-      const user = new User(userData);
-      user.updateUserToken(data[0].idUser, (err) => {
+      User.updateUserToken(userData, data[0].idUser, (err) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
@@ -297,8 +293,7 @@ const verifyToken = (req, res, next) => {
           const tmpUserData = {
             token: refreshToken,
           };
-          const tmpUser = new User(tmpUserData);
-          tmpUser.updateUserToken(data[0].idUser, (err) => {
+          User.updateUserToken(tmpUserData, data[0].idUser, (err) => {
             if (err) {
               return res.status(401).json({
                 error: err.message,

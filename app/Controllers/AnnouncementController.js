@@ -93,8 +93,7 @@ const createAnnouncement = (req, res, next) => {
     announcementStatus: req.body.announcementStatus,
     idEvent: req.body.idEvent,
   };
-  const announcement = new Announcement(announcementData);
-  announcement.addAnnouncement((err, result) => {
+  Announcement.addAnnouncement(announcementData, (err, result) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -156,9 +155,7 @@ const updateAnnoucement = (req, res, next) => {
     announcementDescription: req.body.announcementDescription,
     announcementStatus: req.body.announcementStatus,
   };
-  const announcement = new Announcement(announcementData);
-
-  announcement.updateAnnoucement(idAnnouncement, (err) => {
+  Announcement.updateAnnoucement(announcementData, idAnnouncement, (err) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -193,32 +190,35 @@ const updateAnnoucementStatus = (req, res, next) => {
   const announcementData = {
     announcementStatus: req.body.announcementStatus,
   };
-  const announcement = new Announcement(announcementData);
-  Announcement.getAnnouncementById(idAnnouncement, (err, data) => {
-    if (err) {
-      return res.status(400).json({
-        error: err.message,
-      });
-    }
-    announcement.updateAnnoucementStatus(idAnnouncement, (err) => {
+  Announcement.getAnnouncementById(
+    announcementData,
+    idAnnouncement,
+    (err, data) => {
       if (err) {
         return res.status(400).json({
           error: err.message,
         });
       }
-      Announcement.getAllAnnouncementByIdEvent(idEvent, (err, result) => {
+      announcement.updateAnnoucementStatus(idAnnouncement, (err) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
           });
         }
-        return res.status(200).json({
-          message: `Announcement ${data[0].announcementTitle} status has been change.`,
-          result,
+        Announcement.getAllAnnouncementByIdEvent(idEvent, (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({
+            message: `Announcement ${data[0].announcementTitle} status has been change.`,
+            result,
+          });
         });
       });
-    });
-  });
+    }
+  );
 };
 
 module.exports = {

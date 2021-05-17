@@ -118,8 +118,7 @@ const createEvent = (req, res, next) => {
     idHost: req.user.idRole,
     idType: req.body.idType,
   };
-  const event = new Event(eventData);
-  event.addEvent((err, result) => {
+  Event.addEvent(eventData, (err, result) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -223,8 +222,7 @@ const updateEvent = (req, res, next) => {
     max: req.body.max,
     idType: req.body.idType,
   };
-  const event = new Event(eventData);
-  event.updateEvent(idEvent, (err) => {
+  Event.updateEvent(eventData, idEvent, (err) => {
     if (err) {
       return res.status(400).json({
         error: err.message,

@@ -103,7 +103,6 @@ const createCommittee = async (req, res, next) => {
     userName: req.body.userName,
     userEmail: req.body.userEmail,
   };
-  const user = new User(userData);
   Committee.getCommitteeByUserEmailIdHost(
     userData.userEmail,
     idHost,
@@ -120,7 +119,7 @@ const createCommittee = async (req, res, next) => {
           });
         }
       } else {
-        user.addUserNoPassword((err, result) => {
+        User.addUserNoPassword(userData, (err, result) => {
           if (err) {
             return res.status(400).json({
               error: err.message,
@@ -131,8 +130,7 @@ const createCommittee = async (req, res, next) => {
             idUser: result.insertId,
             idHost: req.user.idRole,
           };
-          const committee = new Committee(committeeData);
-          committee.addCommittee((err, result) => {
+          Committee.addCommittee(committeeData, (err, result) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
@@ -198,7 +196,6 @@ const updateCommittee = async (req, res, next) => {
     userName: req.body.userName,
     userEmail: req.body.userEmail,
   };
-  const user = new User(userData);
   Committee.getCommitteeByUserEmailIdHostNotId(
     userData.userEmail,
     idHost,
@@ -216,7 +213,7 @@ const updateCommittee = async (req, res, next) => {
           });
         }
       } else {
-        user.updateUserNameEmail(idUser, (err) => {
+        User.updateUserNameEmail(userData, idUser, (err) => {
           if (err) {
             return res.status(400).json({
               error: err.message,
@@ -225,8 +222,7 @@ const updateCommittee = async (req, res, next) => {
           const committeData = {
             active: 0,
           };
-          const committe = new Committee(committeData);
-          committe.updateCommitteeActive(idCommittee, (err) => {
+          Committee.updateCommitteeActive(committeData, idCommittee, (err) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
@@ -341,8 +337,7 @@ const activateCommittee = async (req, res, next) => {
     const userData = {
       userPassword: hashedPassword,
     };
-    const user = new User(userData);
-    user.updateUserPassword(idUser, (err) => {
+    User.updateUserPassword(userData, idUser, (err) => {
       if (err) {
         return res.status(400).json({
           error: err.message,
@@ -351,8 +346,7 @@ const activateCommittee = async (req, res, next) => {
       const committeeData = {
         active: 1,
       };
-      const committee = new Committee(committeeData);
-      committee.updateCommitteeActive(idCommittee, (err) => {
+      Committee.updateCommitteeActive(committeeData, idCommittee, (err) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
@@ -383,8 +377,7 @@ const activateCommittee = async (req, res, next) => {
             detail: data[0],
             credentials: credentials,
           };
-          const email = new Email(emailData);
-          const emailContent = email.generateCommitteeEmail();
+          const emailContent = Email.generateCommitteeEmail(emailData);
           const mailOptions = {
             from: data[0].hostEmail,
             to: data[0].userEmail,
@@ -439,8 +432,7 @@ const activateAllCommittee = async (req, res, next) => {
           const userData = {
             userPassword: hashedPassword,
           };
-          const user = new User(userData);
-          user.updateUserPassword(committee.idUser, (err) => {
+          User.updateUserPassword(userData, committee.idUser, (err) => {
             if (err) {
               return res.status(400).json({
                 error: err.message,
@@ -449,62 +441,64 @@ const activateAllCommittee = async (req, res, next) => {
             const committeeData = {
               active: 1,
             };
-            const tmpCommittee = new Committee(committeeData);
-            tmpCommittee.updateCommitteeActive(committee.idCommittee, (err) => {
-              if (err) {
-                return res.status(400).json({
-                  error: err.message,
+            Committee.updateCommitteeActive(
+              committeeData,
+              committee.idCommittee,
+              (err) => {
+                if (err) {
+                  return res.status(400).json({
+                    error: err.message,
+                  });
+                }
+                const tokenContent = {
+                  idUser: committee.idUser,
+                  email: committee.userEmail,
+                  role: 2,
+                  idRole: committee.idCommittee,
+                };
+                const verificationToken = jwt.sign(
+                  tokenContent,
+                  process.env.VERIFICATION_TOKEN_SECRET
+                );
+                const credentials = {
+                  email: committee.userEmail,
+                  password: password,
+                  token: verificationToken,
+                };
+                const emailData = {
+                  detail: data[0],
+                  credentials: credentials,
+                };
+                const emailContent = Email.generateCommitteeEmail(emailData);
+                const mailOptions = {
+                  from: committee.hostEmail,
+                  to: committee.userEmail,
+                  subject: "Committee Account Activation",
+                  text: "Committee Account Activation",
+                  html: emailContent,
+                };
+                mailgun.messages().send(mailOptions, (error, body) => {
+                  if (error) {
+                    return res.status(400).json({
+                      error: error,
+                    });
+                  }
+                  if (idx === array.length - 1) {
+                    Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
+                      if (err) {
+                        return res.status(400).json({
+                          error: err.message,
+                        });
+                      }
+                      return res.status(200).json({
+                        message: "All committee has been activated.",
+                        result,
+                      });
+                    });
+                  }
                 });
               }
-              const tokenContent = {
-                idUser: committee.idUser,
-                email: committee.userEmail,
-                role: 2,
-                idRole: committee.idCommittee,
-              };
-              const verificationToken = jwt.sign(
-                tokenContent,
-                process.env.VERIFICATION_TOKEN_SECRET
-              );
-              const credentials = {
-                email: committee.userEmail,
-                password: password,
-                token: verificationToken,
-              };
-              const emailData = {
-                detail: data[0],
-                credentials: credentials,
-              };
-              const email = new Email(emailData);
-              const emailContent = email.generateCommitteeEmail();
-              const mailOptions = {
-                from: committee.hostEmail,
-                to: committee.userEmail,
-                subject: "Committee Account Activation",
-                text: "Committee Account Activation",
-                html: emailContent,
-              };
-              mailgun.messages().send(mailOptions, (error, body) => {
-                if (error) {
-                  return res.status(400).json({
-                    error: error,
-                  });
-                }
-                if (idx === array.length - 1) {
-                  Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
-                    if (err) {
-                      return res.status(400).json({
-                        error: err.message,
-                      });
-                    }
-                    return res.status(200).json({
-                      message: "All committee has been activated.",
-                      result,
-                    });
-                  });
-                }
-              });
-            });
+            );
           });
         } catch {
           return res.sendStatus(500);
