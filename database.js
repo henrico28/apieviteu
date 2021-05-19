@@ -1,11 +1,12 @@
 let mysql = require("mysql");
+let migration = require("mysql-migrations");
 
 // MySQL db Connection
 let connection = mysql.createPool({
   connectionLimit: 10,
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  host: "localhost",
+  user: "root",
+  password: "",
   database: "eviteu",
 });
 
@@ -35,6 +36,8 @@ function query(sql, callback) {
     return callback(null, data);
   });
 }
+
+migration.init(connection, __dirname + "/Database/Migrations");
 
 module.exports = {
   query: query,

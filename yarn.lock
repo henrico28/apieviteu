@@ -384,6 +384,11 @@ color-name@~1.1.4:
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.4.tgz#c2a09a87acbde69543de6f63fa3995c826c536a2"
   integrity sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
 
+colors@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/colors/-/colors-1.4.0.tgz#c50491479d4c1bdaed2c9ced32cf7c7dc2360f78"
+  integrity sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==
+
 combined-stream@^1.0.6:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/combined-stream/-/combined-stream-1.0.8.tgz#c3d45a8b34fd730631a110a8a2520682b31d5a7f"
@@ -1490,6 +1495,13 @@ multer@^1.4.2:
     on-finished "^2.3.0"
     type-is "^1.6.4"
     xtend "^4.0.0"
+
+mysql-migrations@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/mysql-migrations/-/mysql-migrations-1.0.7.tgz#20ce22de04d2ba603bf8d30b2077f863c187e1c9"
+  integrity sha512-xAgKoZPwVe7liJd/U06LzS5bYIZ6lAFfhWQjxVw+c9oL9IWa63YNuV8ZYaYnSI4UJkeyhf4AClCpx+ICzzDncw==
+  dependencies:
+    colors "^1.4.0"
 
 mysql@^2.18.1:
   version "2.18.1"
