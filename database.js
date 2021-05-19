@@ -4,9 +4,9 @@ let migration = require("mysql-migrations");
 // MySQL db Connection
 let connection = mysql.createPool({
   connectionLimit: 10,
-  host: "localhost",
-  user: "root",
-  password: "",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
   database: "eviteu",
 });
 
