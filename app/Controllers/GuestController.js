@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../Models/User");
 const Guest = require("../Models/Guest");
+const Event = require("../Models/Event");
 const Email = require("../Models/Email");
 var domain = "sandboxadb05a97767742a688d70f7307af35cd.mailgun.org";
 var mailgun = require("mailgun-js")({
@@ -46,14 +47,52 @@ const getAllAttendedGuest = (req, res, next) => {
     return res.sendStatus(401);
   }
   const idEvent = req.params.id;
-  Guest.getAllAttendedGuestByIdEvent(idEvent, (err, result) => {
-    if (err) {
-      return res.status(400).json({
-        error: err.message,
-      });
-    }
-    return res.status(200).json({ result });
-  });
+  const idRole = req.user.idRole;
+  if (req.user.role === 1) {
+    Event.getEventByIdEventIdHost(idEvent, idRole, (err, data) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      if (data.length === 0) {
+        return res.status(404).json({
+          error: "No event found",
+        });
+      } else {
+        Guest.getAllAttendedGuestByIdEvent(idEvent, (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({ result });
+        });
+      }
+    });
+  } else {
+    Event.getEventManageByCommittee(idEvent, idRole, (err, data) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      if (data.length === 0) {
+        return res.status(404).json({
+          error: "No event found",
+        });
+      } else {
+        Guest.getAllAttendedGuestByIdEvent(idEvent, (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({ result });
+        });
+      }
+    });
+  }
 };
 
 const getGuestAttendance = (req, res, next) => {
@@ -61,14 +100,52 @@ const getGuestAttendance = (req, res, next) => {
     return res.sendStatus(401);
   }
   const idEvent = req.params.id;
-  Guest.getAllGuestByIdEvent(idEvent, (err, result) => {
-    if (err) {
-      return res.status(400).json({
-        error: err.message,
-      });
-    }
-    return res.status(200).json({ result });
-  });
+  const idRole = req.user.idRole;
+  if (req.user.role === 1) {
+    Event.getEventByIdEventIdHost(idEvent, idRole, (err, data) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      if (data.length === 0) {
+        return res.status(404).json({
+          error: "No event found",
+        });
+      } else {
+        Guest.getAllGuestByIdEvent(idEvent, (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({ result });
+        });
+      }
+    });
+  } else {
+    Event.getEventManageByCommittee(idEvent, idRole, (err, data) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      if (data.length === 0) {
+        return res.status(404).json({
+          error: "No event found",
+        });
+      } else {
+        Guest.getAllGuestByIdEvent(idEvent, (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({ result });
+        });
+      }
+    });
+  }
 };
 
 const createGuest = async (req, res, next) => {

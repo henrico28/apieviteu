@@ -37,6 +37,13 @@ const getEventDetailByIdEventIdGuest = (idEvent, idGuest, callback) => {
   );
 };
 
+const getEventManageByCommittee = (idEvent, idCommittee, callback) => {
+  db.query(
+    `SELECT * FROM eviteu_manage WHERE idEvent = ${idEvent} AND idCommittee = ${idCommittee}`,
+    callback
+  );
+};
+
 const getAllEventByIdHost = (idHost, callback) => {
   db.query(
     `SELECT eviteu_event.idEvent, eventTitle, eventSubTitle, eventDescription, eventHighlight, date, time, location, coordinates, primaryColor, secondaryColor, accentColor, textColor, max, idHost, typeName, COUNT(idGuest) AS totalGuestInvited,SUM(status) AS totalGuestRsvp,SUM(qty) AS totalGuestBrought, SUM(attend) AS totalGuestAttended FROM eviteu_guest RIGHT OUTER JOIN eviteu_event ON eviteu_guest.idEvent = eviteu_event.idEvent INNER JOIN eviteu_type ON eviteu_event.idType = eviteu_type.idType WHERE idHost = ${idHost} GROUP BY idEvent`,
@@ -87,6 +94,7 @@ module.exports = {
   getEventById,
   getEventByIdEventIdHost,
   getEventDetailByIdEventIdGuest,
+  getEventManageByCommittee,
   getAllEventByIdHost,
   getAllEventByIdCommittee,
   getAllCommitteeAssignedByIdHostId,

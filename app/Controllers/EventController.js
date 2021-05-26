@@ -77,7 +77,7 @@ const getAllAssignedCommittee = (req, res, next) => {
       });
     }
     if (data.length == 0) {
-      return res.status(400).json({
+      return res.status(404).json({
         error: "No event found",
       });
     } else {
