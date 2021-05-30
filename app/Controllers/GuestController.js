@@ -343,30 +343,43 @@ const updateGuestAttend = (req, res, next) => {
   const guestData = {
     attend: req.body.attend,
   };
-  Guest.updateGuestAttend(guestData, idGuest, (err) => {
+  Guest.getGuestByIdEventId(idEvent, idGuest, (err, data) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
       });
     }
-    Guest.getGuestById(idGuest, (err, data) => {
-      if (err) {
-        return res.status(400).json({
-          error: err.message,
-        });
-      }
-      Guest.getAllGuestByIdEvent(idEvent, (err, result) => {
+    if (data.length === 0) {
+      return res.status(404).json({
+        error: `Invalid guest information.`,
+      });
+    } else {
+      Guest.updateGuestAttend(guestData, idGuest, (err) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
           });
         }
-        return res.status(200).json({
-          message: `Guest ${data[0].userName} attendance has been updated.`,
-          result,
+        Guest.getGuestById(idGuest, (err, data) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          Guest.getAllGuestByIdEvent(idEvent, (err, result) => {
+            if (err) {
+              return res.status(400).json({
+                error: err.message,
+              });
+            }
+            return res.status(200).json({
+              message: `Guest ${data[0].userName} attendance has been updated.`,
+              result,
+            });
+          });
         });
       });
-    });
+    }
   });
 };
 

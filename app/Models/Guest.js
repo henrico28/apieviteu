@@ -53,6 +53,13 @@ const getGuestByIdGuestIdHost = (idGuest, idHost, callback) => {
   );
 };
 
+const getGuestByIdEventId = (idEvent, idGuest, callback) => {
+  db.query(
+    `SELECT * FROM eviteu_guest WHERE idEvent = ${idEvent} AND idGuest = ${idGuest}`,
+    callback
+  );
+};
+
 const getGuestByUserEmailIdEvent = (userEmail, idEvent, callback) => {
   db.query(
     `SELECT eviteu_user.idUser, userName, userEmail, idGuest, qty, status, invited, attend, idEvent FROM eviteu_guest INNER JOIN eviteu_user ON eviteu_guest.idUser = eviteu_user.idUser WHERE userEmail = '${userEmail}' AND idEvent = ${idEvent}`,
@@ -124,6 +131,7 @@ module.exports = {
   getGuestById,
   getGuestByIdUser,
   getGuestByIdGuestIdHost,
+  getGuestByIdEventId,
   getGuestByUserEmailIdEvent,
   getGuestByUserEmailIdEventNotId,
   getGuestEmailDetailById,
