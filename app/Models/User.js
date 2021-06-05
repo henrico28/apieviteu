@@ -21,13 +21,6 @@ const updateUser = (data, idUser, callback) => {
   );
 };
 
-const updateUsernameEmail = (data, idUser, callback) => {
-  db.query(
-    `UPDATE eviteu_user SET userName = '${data.userName}', userEmail = '${data.userEmail}' WHERE idUser = ${idUser}`,
-    callback
-  );
-};
-
 const updateUserPassword = (data, idUser, callback) => {
   db.query(
     `UPDATE eviteu_user SET userPassword = '${data.userPassword}' WHERE idUser = ${idUser}`,
@@ -79,7 +72,6 @@ module.exports = {
   addUser,
   addUserNoPassword,
   updateUser,
-  updateUsernameEmail,
   updateUserPassword,
   updateUserToken,
   getAllUsers,

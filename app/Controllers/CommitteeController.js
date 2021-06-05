@@ -195,6 +195,7 @@ const updateCommittee = async (req, res, next) => {
   const userData = {
     userName: req.body.userName,
     userEmail: req.body.userEmail,
+    userPassword: null,
   };
   Committee.getCommitteeByUserEmailIdHostNotId(
     userData.userEmail,
@@ -213,7 +214,7 @@ const updateCommittee = async (req, res, next) => {
           });
         }
       } else {
-        User.updateUserNameEmail(userData, idUser, (err) => {
+        User.updateUser(userData, idUser, (err) => {
           if (err) {
             return res.status(400).json({
               error: err.message,
