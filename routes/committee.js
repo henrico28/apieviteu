@@ -29,5 +29,10 @@ router.put(
   auth.authenticateToken,
   useController.activateAllCommittee
 ); // Activate All Committee
+router.put(
+  "/deactivate",
+  auth.authenticateToken,
+  useController.deactivateCommittee
+); // Deactivate Committee
 
 module.exports = router;

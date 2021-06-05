@@ -523,6 +523,53 @@ const activateAllCommittee = async (req, res, next) => {
   });
 };
 
+const deactivateCommittee = async (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idUser = req.body.idUser;
+  const idCommittee = req.body.idCommittee;
+  const idHost = req.user.idRole;
+  const userData = {
+    userPassword: null,
+  };
+  Committee.getCommitteeById(idCommittee, (err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    User.updateUserPassword(userData, idUser, (err) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      const committeeData = {
+        active: 0,
+      };
+      Committee.updateCommitteeActive(committeeData, idCommittee, (err) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({
+            message: `Committee ${data[0].userName} has been deactivated.`,
+            result,
+          });
+        });
+      });
+    });
+  });
+};
+
 module.exports = {
   getCommittee,
   getAllCommittee,
@@ -534,4 +581,5 @@ module.exports = {
   assignEvent,
   activateCommittee,
   activateAllCommittee,
+  deactivateCommittee,
 };

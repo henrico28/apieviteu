@@ -22,5 +22,6 @@ router.put("/rsvp", auth.authenticateToken, useController.updateGuestRSVP); // U
 router.put("/attend", auth.authenticateToken, useController.updateGuestAttend); // Update Guest Attend'
 router.put("/invite", auth.authenticateToken, useController.inviteGuest); // Invite Guest
 router.put("/inviteAll", auth.authenticateToken, useController.inviteAllGuest); // Invite All Guest
+router.put("/uninvite", auth.authenticateToken, useController.uninviteGuest); // Uninvite Guest
 
 module.exports = router;

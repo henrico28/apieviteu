@@ -591,6 +591,54 @@ const inviteAllGuest = async (req, res, next) => {
   );
 };
 
+const uninviteGuest = async (req, res, next) => {
+  if (req.user.role != 1) {
+    return res.sendStatus(401);
+  }
+  const idUser = req.body.idUser;
+  const idGuest = req.body.idGuest;
+  const idEvent = req.body.idEvent;
+  const idHost = req.user.idRole;
+  const userData = {
+    userPassword: null,
+  };
+  Guest.getGuestById(idGuest, (err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    User.updateUserPassword(userData, idUser, (err) => {
+      if (err) {
+        return res.status(400).json({
+          error: err.message,
+        });
+      }
+      const guestData = {
+        invited: 0,
+      };
+      Guest.updateGuestInvited(guestData, idGuest, (err) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
+          });
+        }
+        Guest.getAllGuestByIdHostIdEvent(idHost, idEvent, (err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
+          }
+          return res.status(200).json({
+            message: `Guest ${data[0].userName} has been uninvited.`,
+            result,
+          });
+        });
+      });
+    });
+  });
+};
+
 module.exports = {
   getGuest,
   getAllGuest,
@@ -603,4 +651,5 @@ module.exports = {
   updateGuestAttend,
   inviteGuest,
   inviteAllGuest,
+  uninviteGuest,
 };
