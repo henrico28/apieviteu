@@ -422,6 +422,7 @@ const inviteGuest = async (req, res, next) => {
           const tokenContent = {
             idUser: data[0].idUser,
             email: data[0].userEmail,
+            password: password,
             role: 3,
             idRole: data[0].idGuest,
             idEvent: idEvent,
@@ -516,6 +517,7 @@ const inviteAllGuest = async (req, res, next) => {
                 const tokenContent = {
                   idUser: guest.idUser,
                   email: guest.userEmail,
+                  password: password,
                   role: 3,
                   idRole: guest.idGuest,
                   idEvent: idEvent,

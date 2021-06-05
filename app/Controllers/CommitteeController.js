@@ -361,6 +361,7 @@ const activateCommittee = async (req, res, next) => {
           const tokenContent = {
             idUser: data[0].idUser,
             email: data[0].userEmail,
+            password: password,
             role: 2,
             idRole: data[0].idCommittee,
           };
@@ -453,6 +454,7 @@ const activateAllCommittee = async (req, res, next) => {
                 const tokenContent = {
                   idUser: committee.idUser,
                   email: committee.userEmail,
+                  password: password,
                   role: 2,
                   idRole: committee.idCommittee,
                 };

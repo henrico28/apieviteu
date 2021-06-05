@@ -262,11 +262,12 @@ const verifyToken = (req, res, next) => {
       const userData = {
         idUser: user.idUser,
         email: user.email,
+        password: user.password,
         role: user.role,
         idRole: user.idRole,
         idEvent: user.idEvent,
       };
-      User.getUserById(userData.idUser, (err, data) => {
+      User.getUserById(userData.idUser, async (err, data) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
@@ -277,36 +278,50 @@ const verifyToken = (req, res, next) => {
             error: "Invalid token.",
           });
         } else {
-          const tokenContent = {
-            idUser: userData.idUser,
-            email: userData.email,
-            name: data[0].userName,
-            role: userData.role,
-            idRole: userData.idRole,
-            idEvent: user.idEvent,
-          };
-          const accessToken = generateAccessToken(tokenContent);
-          const refreshToken = jwt.sign(
-            tokenContent,
-            process.env.REFRESH_TOKEN_SECRET
-          );
-          const tmpUserData = {
-            token: refreshToken,
-          };
-          User.updateUserToken(tmpUserData, data[0].idUser, (err) => {
-            if (err) {
+          try {
+            let validate = await bcrypt.compare(
+              userData.password,
+              data[0].userPassword
+            );
+            if (!validate) {
               return res.status(401).json({
-                error: err.message,
+                error: "Invalid user information.",
+              });
+            } else {
+              const tokenContent = {
+                idUser: userData.idUser,
+                email: userData.email,
+                name: data[0].userName,
+                role: userData.role,
+                idRole: userData.idRole,
+                idEvent: user.idEvent,
+              };
+              const accessToken = generateAccessToken(tokenContent);
+              const refreshToken = jwt.sign(
+                tokenContent,
+                process.env.REFRESH_TOKEN_SECRET
+              );
+              const tmpUserData = {
+                token: refreshToken,
+              };
+              User.updateUserToken(tmpUserData, data[0].idUser, (err) => {
+                if (err) {
+                  return res.status(401).json({
+                    error: err.message,
+                  });
+                }
+                return res.status(200).json({
+                  accessToken: accessToken,
+                  refreshToken: refreshToken,
+                  name: data[0].userName,
+                  role: userData.role,
+                  email: data[0].userEmail,
+                });
               });
             }
-            return res.status(200).json({
-              accessToken: accessToken,
-              refreshToken: refreshToken,
-              name: data[0].userName,
-              role: userData.role,
-              email: data[0].userEmail,
-            });
-          });
+          } catch {
+            return res.sendStatus(500);
+          }
         }
       });
     }
