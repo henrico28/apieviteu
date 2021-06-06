@@ -56,7 +56,7 @@ const login = async (req, res, next) => {
                     }
                     const tokenContent = {
                       idUser: userData.idUser,
-                      email: userData.email,
+                      email: userData.userEmail,
                       name: userData.userName,
                       role: 3,
                       idRole: result[0].idGuest,
@@ -87,7 +87,7 @@ const login = async (req, res, next) => {
                 } else {
                   const tokenContent = {
                     idUser: userData.idUser,
-                    email: userData.email,
+                    email: userData.userEmail,
                     name: userData.userName,
                     role: 2,
                     idRole: result[0].idCommittee,
@@ -118,7 +118,7 @@ const login = async (req, res, next) => {
             } else {
               const tokenContent = {
                 idUser: userData.idUser,
-                email: userData.email,
+                email: userData.userEmail,
                 name: userData.userName,
                 role: 1,
                 idRole: result[0].idHost,
@@ -330,7 +330,7 @@ const verifyToken = (req, res, next) => {
 
 const generateAccessToken = (data) => {
   return jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "1h",
+    expiresIn: "10s",
   });
 };
 
