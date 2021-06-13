@@ -452,7 +452,7 @@ const inviteGuest = async (req, res, next) => {
           mailgun.messages().send(mailOptions, (error, body) => {
             if (error) {
               return res.status(400).json({
-                error: error,
+                error: error.message,
               });
             }
             Guest.getAllGuestByIdHostIdEvent(idHost, idEvent, (err, result) => {
@@ -547,7 +547,7 @@ const inviteAllGuest = async (req, res, next) => {
                 mailgun.messages().send(mailOptions, (error, body) => {
                   if (error) {
                     return res.status(400).json({
-                      error: error,
+                      error: error.message,
                     });
                   }
                   if (idx === array.length - 1) {
@@ -563,6 +563,7 @@ const inviteAllGuest = async (req, res, next) => {
                         return res.status(200).json({
                           message: "All guest has been invited.",
                           result,
+                          body,
                         });
                       }
                     );

@@ -390,7 +390,7 @@ const activateCommittee = async (req, res, next) => {
           mailgun.messages().send(mailOptions, (error, body) => {
             if (error) {
               return res.status(400).json({
-                error: error,
+                error: error.message,
               });
             }
             Committee.getAllCommitteeByIdHost(idHost, (err, result) => {
@@ -483,7 +483,7 @@ const activateAllCommittee = async (req, res, next) => {
                 mailgun.messages().send(mailOptions, (error, body) => {
                   if (error) {
                     return res.status(400).json({
-                      error: error,
+                      error: error.message,
                     });
                   }
                   if (idx === array.length - 1) {
@@ -496,6 +496,7 @@ const activateAllCommittee = async (req, res, next) => {
                       return res.status(200).json({
                         message: "All committee has been activated.",
                         result,
+                        body,
                       });
                     });
                   }
