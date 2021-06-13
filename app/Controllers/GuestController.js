@@ -4,10 +4,9 @@ const User = require("../Models/User");
 const Guest = require("../Models/Guest");
 const Event = require("../Models/Event");
 const Email = require("../Models/Email");
-var domain = "sandboxadb05a97767742a688d70f7307af35cd.mailgun.org";
 var mailgun = require("mailgun-js")({
   apiKey: process.env.MAILGUN_API_KEY,
-  domain: domain,
+  domain: process.env.MAILGUN_DOMAIN,
 });
 
 const getGuest = (req, res, next) => {
