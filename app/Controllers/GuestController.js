@@ -391,88 +391,84 @@ const inviteGuest = async (req, res, next) => {
   const idGuest = req.body.idGuest;
   const idHost = req.user.idRole;
   const idEvent = req.body.idEvent;
-  try {
-    const password = Math.random().toString(36).slice(-8);
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const userData = {
-      userPassword: hashedPassword,
+  const password = Math.random().toString(36).slice(-8);
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(password, salt);
+  const userData = {
+    userPassword: hashedPassword,
+  };
+  User.updateUserPassword(userData, idUser, (err) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    const guestData = {
+      invited: 1,
     };
-    User.updateUserPassword(userData, idUser, (err) => {
+    Guest.updateGuestInvited(guestData, idGuest, (err) => {
       if (err) {
         return res.status(400).json({
           error: err.message,
         });
       }
-      const guestData = {
-        invited: 1,
-      };
-      Guest.updateGuestInvited(guestData, idGuest, (err) => {
+      Guest.getGuestEmailDetailById(idGuest, (err, data) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
           });
         }
-        Guest.getGuestEmailDetailById(idGuest, (err, data) => {
-          if (err) {
+        const tokenContent = {
+          idUser: data[0].idUser,
+          email: data[0].userEmail,
+          password: password,
+          role: 3,
+          idRole: data[0].idGuest,
+          idEvent: idEvent,
+        };
+        const verificationToken = jwt.sign(
+          tokenContent,
+          process.env.VERIFICATION_TOKEN_SECRET
+        );
+        const credentials = {
+          email: data[0].userEmail,
+          password: password,
+          token: verificationToken,
+        };
+        const emailData = {
+          detail: data[0],
+          credentials: credentials,
+        };
+        const emailContent = Email.generateGuestEmail(emailData);
+        const mailOptions = {
+          from: data[0].hostEmail,
+          to: data[0].userEmail,
+          subject: `Invitation to ${data[0].eventTitle} - ${data[0].eventSubTitle}`,
+          text: `Invitation to ${data[0].eventTitle} - ${data[0].eventSubTitle}`,
+          html: emailContent,
+        };
+        mailgun.messages().send(mailOptions, (error, body) => {
+          if (error) {
             return res.status(400).json({
-              error: err.message,
+              error: error.message,
             });
           }
-          const tokenContent = {
-            idUser: data[0].idUser,
-            email: data[0].userEmail,
-            password: password,
-            role: 3,
-            idRole: data[0].idGuest,
-            idEvent: idEvent,
-          };
-          const verificationToken = jwt.sign(
-            tokenContent,
-            process.env.VERIFICATION_TOKEN_SECRET
-          );
-          const credentials = {
-            email: data[0].userEmail,
-            password: password,
-            token: verificationToken,
-          };
-          const emailData = {
-            detail: data[0],
-            credentials: credentials,
-          };
-          const emailContent = Email.generateGuestEmail(emailData);
-          const mailOptions = {
-            from: data[0].hostEmail,
-            to: data[0].userEmail,
-            subject: `Invitation to ${data[0].eventTitle} - ${data[0].eventSubTitle}`,
-            text: `Invitation to ${data[0].eventTitle} - ${data[0].eventSubTitle}`,
-            html: emailContent,
-          };
-          mailgun.messages().send(mailOptions, (error, body) => {
-            if (error) {
+          Guest.getAllGuestByIdHostIdEvent(idHost, idEvent, (err, result) => {
+            if (err) {
               return res.status(400).json({
-                error: error.message,
+                error: err.message,
               });
             }
-            Guest.getAllGuestByIdHostIdEvent(idHost, idEvent, (err, result) => {
-              if (err) {
-                return res.status(400).json({
-                  error: err.message,
-                });
-              }
-              return res.status(200).json({
-                message: `Guest ${data[0].userName} has been invited.`,
-                result,
-                body,
-              });
+            return res.status(200).json({
+              message: `Guest ${data[0].userName} has been invited.`,
+              result,
+              body,
             });
           });
         });
       });
     });
-  } catch {
-    return res.sendStatus(500);
-  }
+  });
 };
 
 const inviteAllGuest = async (req, res, next) => {
@@ -492,87 +488,83 @@ const inviteAllGuest = async (req, res, next) => {
       }
       if (data.length !== 0) {
         await data.forEach(async (guest, idx, array) => {
-          try {
-            const password = Math.random().toString(36).slice(-8);
-            const salt = await bcrypt.genSalt();
-            const hashedPassword = await bcrypt.hash(password, salt);
-            const userData = {
-              userPassword: hashedPassword,
+          const password = Math.random().toString(36).slice(-8);
+          const salt = await bcrypt.genSalt();
+          const hashedPassword = await bcrypt.hash(password, salt);
+          const userData = {
+            userPassword: hashedPassword,
+          };
+          User.updateUserPassword(userData, guest.idUser, (err) => {
+            if (err) {
+              return res.status(400).json({
+                error: err.message,
+              });
+            }
+            const guestData = {
+              invited: 1,
             };
-            User.updateUserPassword(userData, guest.idUser, (err) => {
+            Guest.updateGuestInvited(guestData, guest.idGuest, (err) => {
               if (err) {
                 return res.status(400).json({
                   error: err.message,
                 });
               }
-              const guestData = {
-                invited: 1,
+              const tokenContent = {
+                idUser: guest.idUser,
+                email: guest.userEmail,
+                password: password,
+                role: 3,
+                idRole: guest.idGuest,
+                idEvent: idEvent,
               };
-              Guest.updateGuestInvited(guestData, guest.idGuest, (err) => {
-                if (err) {
+              const verificationToken = jwt.sign(
+                tokenContent,
+                process.env.VERIFICATION_TOKEN_SECRET
+              );
+              const credentials = {
+                email: guest.userEmail,
+                password: password,
+                token: verificationToken,
+              };
+              const emailData = {
+                detail: data[0],
+                credentials: credentials,
+              };
+              const emailContent = Email.generateGuestEmail(emailData);
+              const mailOptions = {
+                from: guest.hostEmail,
+                to: guest.userEmail,
+                subject: `Invitation to ${guest.eventTitle} - ${guest.eventSubTitle}`,
+                text: `Invitation to ${guest.eventTitle} - ${guest.eventSubTitle}`,
+                html: emailContent,
+              };
+              mailgun.messages().send(mailOptions, (error, body) => {
+                if (error) {
                   return res.status(400).json({
-                    error: err.message,
+                    error: error.message,
                   });
                 }
-                const tokenContent = {
-                  idUser: guest.idUser,
-                  email: guest.userEmail,
-                  password: password,
-                  role: 3,
-                  idRole: guest.idGuest,
-                  idEvent: idEvent,
-                };
-                const verificationToken = jwt.sign(
-                  tokenContent,
-                  process.env.VERIFICATION_TOKEN_SECRET
-                );
-                const credentials = {
-                  email: guest.userEmail,
-                  password: password,
-                  token: verificationToken,
-                };
-                const emailData = {
-                  detail: data[0],
-                  credentials: credentials,
-                };
-                const emailContent = Email.generateGuestEmail(emailData);
-                const mailOptions = {
-                  from: guest.hostEmail,
-                  to: guest.userEmail,
-                  subject: `Invitation to ${guest.eventTitle} - ${guest.eventSubTitle}`,
-                  text: `Invitation to ${guest.eventTitle} - ${guest.eventSubTitle}`,
-                  html: emailContent,
-                };
-                mailgun.messages().send(mailOptions, (error, body) => {
-                  if (error) {
-                    return res.status(400).json({
-                      error: error.message,
-                    });
-                  }
-                  if (idx === array.length - 1) {
-                    Guest.getAllGuestByIdHostIdEvent(
-                      idHost,
-                      idEvent,
-                      (err, result) => {
-                        if (err) {
-                          return res.status(400).json({
-                            error: err.message,
-                          });
-                        }
-                        return res.status(200).json({
-                          message: "All guest has been invited.",
-                          result,
-                          body,
+                if (idx === array.length - 1) {
+                  Guest.getAllGuestByIdHostIdEvent(
+                    idHost,
+                    idEvent,
+                    (err, result) => {
+                      if (err) {
+                        return res.status(400).json({
+                          error: err.message,
                         });
                       }
-                    );
-                  }
-                });
+                      return res.status(200).json({
+                        message: "All guest has been invited.",
+                        result,
+                        body,
+                      });
+                    }
+                  );
+                }
               });
             });
-          } catch {
-            return res.sendStatus(500);
-          }
+          });
         });
       } else {
         Guest.getAllGuestByIdHostIdEvent(idHost, idEvent, (err, result) => {

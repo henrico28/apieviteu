@@ -53,7 +53,7 @@ const createHost = async (req, res, next) => {
                 error: err.message,
               });
             }
-            Host.getHostByIdHost(result.insertId, (err, data) => {
+            Host.getHostById(result.insertId, (err, data) => {
               if (err) {
                 return res.status(400).json({
                   error: err.message,

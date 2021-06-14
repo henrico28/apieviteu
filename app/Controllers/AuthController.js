@@ -10,67 +10,88 @@ const login = async (req, res, next) => {
     userEmail: req.body.userEmail,
     userPassword: req.body.userPassword,
   };
-  User.getUserByEmail(loginData.userEmail, async (err, data) => {
+  Host.getHostByUserEmail(loginData.userEmail, async (err, host) => {
     if (err) {
       return res.status(400).json({
         error: err.message,
       });
     }
-    if (data.length === 0) {
-      return res.status(401).json({
-        error: "Invalid email.",
-      });
-    } else {
-      try {
-        let userData = null;
-        for (let i = 0; i < data.length; i++) {
-          let validate = await bcrypt.compare(
-            loginData.userPassword,
-            data[i].userPassword
-          );
-          if (validate) {
-            userData = data[i];
-            break;
+    let verifyHost = false;
+    if (host.length !== 0) {
+      verifyHost = await bcrypt.compare(
+        loginData.userPassword,
+        host[0].userPassword
+      );
+    }
+    if (host.length === 0 || !verifyHost) {
+      Committee.getCommitteeByUserEmail(
+        loginData.userEmail,
+        async (err, committee) => {
+          if (err) {
+            return res.status(400).json({
+              error: err.message,
+            });
           }
-        }
-        if (userData) {
-          Host.getHostByIdUser(userData.idUser, (err, result) => {
-            if (err) {
-              return res.status(400).json({
-                error: err.message,
-              });
+          let committeeData = null;
+          if (committee.length !== 0) {
+            for (let i = 0; i < committee.length; i++) {
+              let validate = await bcrypt.compare(
+                loginData.userPassword,
+                committee[i].userPassword
+              );
+              if (validate) {
+                committeeData = committee[i];
+                break;
+              }
             }
-            if (result.length === 0) {
-              Committee.getCommitteeByIdUser(userData.idUser, (err, result) => {
+          }
+          if (committee.length === 0 || !committeeData) {
+            Guest.getGuestByUserEmail(
+              loginData.userEmail,
+              async (err, guest) => {
                 if (err) {
                   return res.status(400).json({
                     error: err.message,
                   });
                 }
-                if (result.length === 0) {
-                  Guest.getGuestByIdUser(userData.idUser, (err, result) => {
-                    if (err) {
-                      return res.status(400).json({
-                        error: err.message,
-                      });
+                if (guest.length === 0) {
+                  return res.status(401).json({
+                    error: "Invalid email or password.",
+                  });
+                } else {
+                  let guestData = null;
+                  for (let i = 0; i < guest.length; i++) {
+                    let validate = await bcrypt.compare(
+                      loginData.userPassword,
+                      guest[i].userPassword
+                    );
+                    if (validate) {
+                      guestData = guest[i];
+                      break;
                     }
-                    const tokenContent = {
-                      idUser: userData.idUser,
-                      email: userData.userEmail,
-                      name: userData.userName,
+                  }
+                  if (!guestData) {
+                    return res.status(401).json({
+                      error: "Invalid email or password.",
+                    });
+                  } else {
+                    let tokenContent = {
+                      idUser: guestData.idUser,
+                      email: guestData.userEmail,
+                      name: guestData.userName,
                       role: 3,
-                      idRole: result[0].idGuest,
-                      idEvent: result[0].idEvent,
+                      idRole: guestData.idGuest,
+                      idEvent: guestData.idEvent,
                     };
                     const accessToken = generateAccessToken(tokenContent);
                     const refreshToken = jwt.sign(
                       tokenContent,
                       process.env.REFRESH_TOKEN_SECRET
                     );
-                    const tmpData = {
+                    const userData = {
                       token: refreshToken,
                     };
-                    User.updateUserToken(tmpData, userData.idUser, (err) => {
+                    User.updateUserToken(userData, guestData.idUser, (err) => {
                       if (err) {
                         return res.status(400).json({
                           error: err.message,
@@ -79,81 +100,73 @@ const login = async (req, res, next) => {
                       return res.status(200).json({
                         accessToken: accessToken,
                         refreshToken: refreshToken,
-                        name: userData.userName,
+                        name: guestData.userName,
                         role: 3,
                       });
                     });
-                  });
-                } else {
-                  const tokenContent = {
-                    idUser: userData.idUser,
-                    email: userData.userEmail,
-                    name: userData.userName,
-                    role: 2,
-                    idRole: result[0].idCommittee,
-                  };
-                  const accessToken = generateAccessToken(tokenContent);
-                  const refreshToken = jwt.sign(
-                    tokenContent,
-                    process.env.REFRESH_TOKEN_SECRET
-                  );
-                  const tmpData = {
-                    token: refreshToken,
-                  };
-                  User.updateUserToken(tmpData, userData.idUser, (err) => {
-                    if (err) {
-                      return res.status(400).json({
-                        error: err.message,
-                      });
-                    }
-                    return res.status(200).json({
-                      accessToken: accessToken,
-                      refreshToken: refreshToken,
-                      name: userData.userName,
-                      role: 2,
-                    });
-                  });
+                  }
                 }
-              });
-            } else {
-              const tokenContent = {
-                idUser: userData.idUser,
-                email: userData.userEmail,
-                name: userData.userName,
-                role: 1,
-                idRole: result[0].idHost,
-              };
-              const accessToken = generateAccessToken(tokenContent);
-              const refreshToken = jwt.sign(
-                tokenContent,
-                process.env.REFRESH_TOKEN_SECRET
-              );
-              const tmpData = {
-                token: refreshToken,
-              };
-              User.updateUserToken(tmpData, userData.idUser, (err) => {
-                if (err) {
-                  return res.status(400).json({
-                    error: err.message,
-                  });
-                }
-                return res.status(200).json({
-                  accessToken: accessToken,
-                  refreshToken: refreshToken,
-                  name: userData.userName,
-                  role: 1,
+              }
+            );
+          } else {
+            let tokenContent = {
+              idUser: committeeData.idUser,
+              email: committeeData.userEmail,
+              role: 2,
+              idRole: committeeData.idCommittee,
+            };
+            const accessToken = generateAccessToken(tokenContent);
+            const refreshToken = jwt.sign(
+              tokenContent,
+              process.env.REFRESH_TOKEN_SECRET
+            );
+            const userData = {
+              token: refreshToken,
+            };
+            User.updateUserToken(userData, committeeData.idUser, (err) => {
+              if (err) {
+                return res.status(400).json({
+                  error: err.message,
                 });
+              }
+              return res.status(200).json({
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+                name: committeeData.userName,
+                role: 2,
               });
-            }
-          });
-        } else {
-          return res.status(401).json({
-            error: "Invalid email or password.",
+            });
+          }
+        }
+      );
+    } else {
+      let tokenContent = {
+        idUser: host[0].idUser,
+        email: host[0].userEmail,
+        role: 1,
+        idRole: host[0].idHost,
+      };
+      const accessToken = generateAccessToken(tokenContent);
+      const refreshToken = jwt.sign(
+        tokenContent,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+      const userData = {
+        token: refreshToken,
+      };
+      User.updateUserToken(userData, host[0].idUser, (err) => {
+        if (err) {
+          return res.status(400).json({
+            error: err.message,
           });
         }
-      } catch {
-        return res.sendStatus(500);
-      }
+        return res.status(200).json({
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+          name: host[0].userName,
+          role: 1,
+        });
+      });
     }
   });
 };
@@ -278,49 +291,45 @@ const verifyToken = (req, res, next) => {
             error: "Invalid token.",
           });
         } else {
-          try {
-            let validate = await bcrypt.compare(
-              userData.password,
-              data[0].userPassword
+          let validate = await bcrypt.compare(
+            userData.password,
+            data[0].userPassword
+          );
+          if (!validate) {
+            return res.status(401).json({
+              error: "Invalid user information.",
+            });
+          } else {
+            const tokenContent = {
+              idUser: userData.idUser,
+              email: userData.email,
+              name: data[0].userName,
+              role: userData.role,
+              idRole: userData.idRole,
+              idEvent: user.idEvent,
+            };
+            const accessToken = generateAccessToken(tokenContent);
+            const refreshToken = jwt.sign(
+              tokenContent,
+              process.env.REFRESH_TOKEN_SECRET
             );
-            if (!validate) {
-              return res.status(401).json({
-                error: "Invalid user information.",
-              });
-            } else {
-              const tokenContent = {
-                idUser: userData.idUser,
-                email: userData.email,
+            const tmpUserData = {
+              token: refreshToken,
+            };
+            User.updateUserToken(tmpUserData, data[0].idUser, (err) => {
+              if (err) {
+                return res.status(401).json({
+                  error: err.message,
+                });
+              }
+              return res.status(200).json({
+                accessToken: accessToken,
+                refreshToken: refreshToken,
                 name: data[0].userName,
                 role: userData.role,
-                idRole: userData.idRole,
-                idEvent: user.idEvent,
-              };
-              const accessToken = generateAccessToken(tokenContent);
-              const refreshToken = jwt.sign(
-                tokenContent,
-                process.env.REFRESH_TOKEN_SECRET
-              );
-              const tmpUserData = {
-                token: refreshToken,
-              };
-              User.updateUserToken(tmpUserData, data[0].idUser, (err) => {
-                if (err) {
-                  return res.status(401).json({
-                    error: err.message,
-                  });
-                }
-                return res.status(200).json({
-                  accessToken: accessToken,
-                  refreshToken: refreshToken,
-                  name: data[0].userName,
-                  role: userData.role,
-                  email: data[0].userEmail,
-                });
+                email: data[0].userEmail,
               });
-            }
-          } catch {
-            return res.sendStatus(500);
+            });
           }
         }
       });

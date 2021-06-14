@@ -21,8 +21,11 @@ const getCommitteeById = (idCommittee, callback) => {
   );
 };
 
-const getCommitteeByIdUser = (idUser, callback) => {
-  db.query(`SELECT * FROM eviteu_committee WHERE idUser = ${idUser}`, callback);
+const getCommitteeByUserEmail = (userEmail, callback) => {
+  db.query(
+    `SELECT eviteu_user.idUser, userName, userEmail, userPassword, idCommittee FROM eviteu_committee INNER JOIN eviteu_user ON eviteu_committee.iduser = eviteu_user.idUser WHERE userEmail = '${userEmail}' AND active = 1`,
+    callback
+  );
 };
 
 const getCommitteeByIdCommitteeIdHost = (idCommittee, idHost, callback) => {
@@ -118,7 +121,7 @@ module.exports = {
   addCommittee,
   updateCommitteeActive,
   getCommitteeById,
-  getCommitteeByIdUser,
+  getCommitteeByUserEmail,
   getCommitteeByIdCommitteeIdHost,
   getCommitteeByIdEvent,
   getCommitteeByUserEmailIdHost,
