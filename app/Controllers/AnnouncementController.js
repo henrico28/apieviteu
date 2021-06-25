@@ -190,16 +190,16 @@ const updateAnnoucementStatus = (req, res, next) => {
   const announcementData = {
     announcementStatus: req.body.announcementStatus,
   };
-  Announcement.getAnnouncementById(
-    announcementData,
-    idAnnouncement,
-    (err, data) => {
-      if (err) {
-        return res.status(400).json({
-          error: err.message,
-        });
-      }
-      announcement.updateAnnoucementStatus(idAnnouncement, (err) => {
+  Announcement.getAnnouncementById(idAnnouncement, (err, data) => {
+    if (err) {
+      return res.status(400).json({
+        error: err.message,
+      });
+    }
+    Announcement.updateAnnoucementStatus(
+      announcementData,
+      idAnnouncement,
+      (err) => {
         if (err) {
           return res.status(400).json({
             error: err.message,
@@ -216,9 +216,9 @@ const updateAnnoucementStatus = (req, res, next) => {
             result,
           });
         });
-      });
-    }
-  );
+      }
+    );
+  });
 };
 
 module.exports = {
